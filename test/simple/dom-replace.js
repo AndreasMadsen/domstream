@@ -11,9 +11,12 @@ var tree = domstream(common.content);
 // create a new document
 var document = tree.create();
 
-var menu = document.find().only().elem('menu').toValue();
+var menu = document.find().only().elem('html').toValue();
 
-menu.trim();
+menu.removeAttr('lang');
 
-console.log(document.content);
-//console.log(require('util').inspect(document, false, 20, true));
+console.log(require('util').inspect(document, false, 20, true));
+
+///console.log(document.content.slice(footer.elem.pos.beforebegin, footer.elem.pos.beforeend + footer.elem.pos.afterend));
+
+//console.log(document.content);
