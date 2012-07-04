@@ -1,0 +1,34 @@
+{
+  "name": "domstream",
+  "description": "Progressiv manipulate HTML content in chunks",
+  "version": "0.1.0",
+  "author": "Andreas Madsen <amwebdk@gmail.com>",
+  "scripts": {
+    "test": "vows test/simple/* --spec"
+  },
+  "main": "./domstream.js",
+  "repository" : {
+    "type": "git",
+    "url": "git://github.com/AndreasMadsen/leaflet.git"
+  },
+  "keywords": [
+    "dom",
+    "stream",
+    "document",
+    "chunk",
+    "push",
+    "modify",
+    "html"
+  ],
+  "dependencies": {
+    "flower": "0.5.x"
+  },
+  "devDependencies": {
+    "vows" :  "0.6.x"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": "0.6 || 0.8",
+    "npm": "1"
+  }
+}
