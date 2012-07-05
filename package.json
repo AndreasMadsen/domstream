@@ -20,9 +20,6 @@
     "modify",
     "html"
   ],
-  "dependencies": {
-    "flower": "0.5.x"
-  },
   "devDependencies": {
     "vows" :  "0.6.x"
   },

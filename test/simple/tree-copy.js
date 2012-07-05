@@ -6,7 +6,7 @@
 var common = require('../common.js');
 var domstream = common.domstream;
 
-var tree = domstream.Tree(common.content);
+var tree = domstream(common.content);
 
 // create a new document
 var document = tree.create();
