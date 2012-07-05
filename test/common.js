@@ -36,6 +36,8 @@ exports.removeParent = removeParent;
 
 // Check that two dom trees match
 function matchTree(actual, expected) {
+  assert.notEqual(actual, expected);
+  
   // check that none circular properties match
   assert.deepEqual(removeParent(actual), removeParent(expected));
   

@@ -15,10 +15,10 @@ var expected = JSON.parse(fs.readFileSync(common.parsed, 'utf8'));
 
 vows.describe('testing HTML parser').addBatch({
 
-  'a new document': {
+  'when creating a new document': {
     topic: domstream(content),
 
-    'content property should match input': function (document) {
+    'its content property should match input': function (document) {
       assert.strictEqual(document.content, content);
     },
     
