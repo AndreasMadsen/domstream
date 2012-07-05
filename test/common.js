@@ -35,14 +35,14 @@ function removeParent(from) {
 exports.removeParent = removeParent;
 
 // Check that two dom trees match
-function treeMatch(actual, expected) {
+function matchTree(actual, expected) {
   // check that none circular properties match
   assert.deepEqual(removeParent(actual), removeParent(expected));
   
   // check parentTree
   checkParrentTree(actual);
 }
-exports.treeMatch = treeMatch;
+exports.matchTree = matchTree;
 
 function checkParrentTree(tree) {
   if (tree.singleton) return;
