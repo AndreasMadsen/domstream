@@ -13,7 +13,7 @@ var document = tree.create();
 
 var menu = document.find().only().elem('div').toValue();
 
-menu.setAttr('data-extra', 'test');
+menu.append('content text');
 
 console.log(require('util').inspect(document, false, 20, true));
 
