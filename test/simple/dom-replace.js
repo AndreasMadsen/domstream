@@ -11,9 +11,9 @@ var tree = domstream(common.content);
 // create a new document
 var document = tree.create();
 
-var menu = document.find().only().elem('html').toValue();
+var menu = document.find().only().elem('div').toValue();
 
-menu.removeAttr('lang');
+menu.setAttr('data-extra', 'test');
 
 console.log(require('util').inspect(document, false, 20, true));
 
