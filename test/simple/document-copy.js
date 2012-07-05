@@ -11,7 +11,6 @@ var common = require('../common.js');
 var domstream = common.domstream;
 
 var content = fs.readFileSync(common.template, 'utf8');
-var expected = JSON.parse(fs.readFileSync(common.parsed, 'utf8'));
 
 vows.describe('testing document copy').addBatch({
 
