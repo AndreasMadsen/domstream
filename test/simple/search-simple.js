@@ -32,6 +32,9 @@ testsuite.addBatch({
     'attribute value':
       expectNoResult(document.find().attr('rel', 'missing')),
 
+    'attribute RegExp':
+      expectNoResult(document.find().attr('rel', /missing/)),
+
     'tagname followed by attribute value':
       expectNoResult(document.find().elem('link').attr('data-match', '1')),
 
@@ -80,6 +83,9 @@ testsuite.addBatch({
 
     'attribute value':
       expectOneResult(document.find().only().attr('rel', 'stylesheet'), head.childrens[1]),
+
+    'attribute RegExp':
+      expectOneResult(document.find().only().attr('href', /^file_(2|3)\.css$/), head.childrens[2]),
 
     'tagname followed by attribute value':
       expectOneResult(document.find().only().elem('link').attr('rel', 'stylesheet'), head.childrens[1]),
@@ -149,7 +155,7 @@ function expectOneResult(query, result) {
   };
 }
 
-var items = body.childrens[1].childrens.concat([body.childrens[2], body.childrens[3]]);
+var items = body.childrens[1].childrens.concat([body.childrens[2], body.childrens[3], body.childrens[4]]);
 
 testsuite.addBatch({
 
@@ -162,6 +168,9 @@ testsuite.addBatch({
 
     'attribute value':
       expectResult(document.find().attr('data-match', '1'), [ items[0], items[2], items[3] ]),
+
+    'attribute RegExp':
+      expectResult(document.find().attr('data-match', /^(2|3)$/), [ items[1], items[4], items[5] ]),
 
     'tagname followed by attribute value':
       expectResult(document.find().elem('li').attr('data-match', '1'), [ items[0], items[2], items[3] ]),
