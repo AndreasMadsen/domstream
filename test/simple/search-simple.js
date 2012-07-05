@@ -86,6 +86,7 @@ testsuite.addBatch({
 
     'attribute followed by tagname value':
       expectOneResult(document.find().only().attr('rel', 'stylesheet').elem('link'), head.childrens[1]),
+
     'multiply steps with only at start': {
       topic: function () {
         var search = document.find();
@@ -106,7 +107,7 @@ testsuite.addBatch({
         assert.instanceOf(error, Error);
       }
     },
-    
+
     'multiply steps with only at middle': expectOneResult(function () {
       var search = document.find();
 
@@ -144,6 +145,65 @@ function expectOneResult(query, result) {
     'toArray returns array with one item': function (search) {
       assert.lengthOf(search.toArray(), 1);
       assert.strictEqual(search.toArray()[0].elem, result);
+    }
+  };
+}
+
+var items = body.childrens[1].childrens.concat([body.childrens[2], body.childrens[3]]);
+
+testsuite.addBatch({
+
+  'when searching using': {
+    'tagname':
+      expectResult(document.find().elem('li'), items),
+
+    'attribute name':
+      expectResult(document.find().attr('data-match'), items),
+
+    'attribute value':
+      expectResult(document.find().attr('data-match', '1'), [ items[0], items[2], items[3] ]),
+
+    'tagname followed by attribute value':
+      expectResult(document.find().elem('li').attr('data-match', '1'), [ items[0], items[2], items[3] ]),
+
+    'attribute followed by tagname value':
+      expectResult(document.find().attr('data-match', '1').elem('li'), [ items[0], items[2], items[3] ]),
+
+    'multiply steps': expectResult(function () {
+      var search = document.find();
+
+      // this will perform a real search for all <li> element
+      search.elem('li');
+      search.toArray();
+
+      // this will setup search for all <li data-match="1" *>
+      search.attr('data-match', '1');
+
+      return search;
+    }, [ items[0], items[2], items[3] ])
+  }
+});
+
+function expectResult(query, results) {
+  var length = results.length;
+
+  return {
+    topic: query,
+
+    'toValue returns an element': function (search) {
+      assert.lengthOf(search.toValue(), length);
+
+      search.toValue().forEach(function (node, index) {
+        assert.strictEqual(node.elem, results[index]);
+      });
+    },
+
+    'toArray returns array with one item': function (search) {
+      assert.lengthOf(search.toArray(), length);
+
+      search.toArray().forEach(function (node, index) {
+        assert.strictEqual(node.elem, results[index]);
+      });
     }
   };
 }
