@@ -11,8 +11,9 @@ var dirname = path.dirname(module.filename);
 
 exports.domstream = require(path.resolve(dirname, '../domstream.js'));
 
-exports.template = path.resolve(dirname, './fixture/template.html');
-exports.parsed = path.resolve(dirname, './fixture/parsed.json');
+exports.fixture = path.resolve(dirname, './fixture/');
+exports.template = path.resolve(exports.fixture, 'template.html');
+exports.parsed = path.resolve(exports.fixturername, 'parsed.json');
 
 // filter out any parent, to prevent a too deep search when doing deep match
 function removeParent(from) {
@@ -37,10 +38,10 @@ exports.removeParent = removeParent;
 // Check that two dom trees match
 function matchTree(actual, expected) {
   assert.notEqual(actual, expected);
-  
+
   // check that none circular properties match
   assert.deepEqual(removeParent(actual), removeParent(expected));
-  
+
   // check parentTree
   checkParrentTree(actual);
 }
@@ -48,12 +49,12 @@ exports.matchTree = matchTree;
 
 function checkParrentTree(tree) {
   if (tree.singleton) return;
-  
+
   // go through all childrens and check that there parent match this element
   tree.childrens.forEach(function (child) {
     assert.notEqual(child.parent, undefined);
     assert.strictEqual(child.parent, tree);
-    
+
     checkParrentTree(child);
   });
 }
