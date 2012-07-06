@@ -112,7 +112,7 @@ testsuite.addBatch({
     },
 
     'expect parent node': function (result) {
-      assert.strictEqual(result.elem, document.find().only().elem('html').toValue().elem);
+      assert.strictEqual(result, document.find().only().elem('html').toValue());
     }
   },
 
