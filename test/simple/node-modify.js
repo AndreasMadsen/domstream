@@ -182,6 +182,29 @@ testsuite.addBatch({
   }, '<a><b aa ab="b">overwrite</b><e></e><f/></a>')
 });
 
+// test content remove
+var remove = domstream(content);
+var elemRB = remove.find().only().elem('b').toValue();
+assert.strictEqual(elemRB.elem, remove.tree.childrens[0].childrens[0]);
+
+testsuite.addBatch({
+  'when removeing content': testResult({
+    topic: function () {
+      return elemRB.trim();
+    },
+
+    'getting content': {
+      topic: function (node) {
+        return node.getContent();
+      },
+      'should match expected result': function (inner) {
+        assert.equal(inner, '');
+      }
+    }
+  }, '<a><b aa ab="b"></b><e></e><f/></a>')
+});
+
+
 function testResult(batch, content) {
   batch['the content should match'] = function (node) {
     assert.strictEqual(node.document.content, content);
