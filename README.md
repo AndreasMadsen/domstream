@@ -1,8 +1,8 @@
 #domstream
 
 > domstream is document orintered model there supports sending chunks
-> as the html file gets build. It should be noted that domstream is not
-> a real DOM, but string based. This allow a much faster build process
+> as the html file gets manipulated. It should be noted that domstream is
+> not a real DOM, but string based. This allow a much faster build process
 > but the unfortunat is that domstream requires a very pretty html document
 > and is not as sufisticated as the real DOM.
 
@@ -14,92 +14,193 @@ npm install domstream
 
 ##Example
 
-**Node this is still in progress, all the DOM api is implemented but
-the stream interface is not.**
-
 ```JavaScript
 var domstream = require('domstream');
 var fs = require('fs');
 
-// domstream needs something to start with, since it works
-// with relative positions. Of course that can just be
-// "<html></html>" but why read from a static file to reduse
-// computations. This will also allow the content to be send
-// in more chunks.
-var base = fs.readFileSync('./template.html', 'utf8');
+// File content:
+// <!DOCTYPE html>
+//   <html lang="unset">
+//      <head>
+//        <title>Unset title</title>
+//      </head>
+//      <body></body>
+//  </html>
+var content = fs.readFileSync('./template.html', 'utf8');
 
-// create a new tree
-var tree = domstream(content);
-var document = tree.create().pipe(process.stdout);
+// create a new document
+var original = domstream(content);
 
-// find all containers
-var nodes = [
-  document.find().elem('title'),
-  document.find().elem('head'),
-  document.find().all().elem('li').attr('class', 'menu'),
-  document.find().attr('id', 'main')
-];
+// after the document has been created, it can be manipulated
+// in this case a <script> tag is added to the head
+original.find().only().elem('head').toValue().insert('beforeend', '<script></script>');
 
-// we will need to preatach there position to the tree
-// so it knowns when a chunk is ready to be send.
-document.container(nodes);
+// any document can be copied at any time
+// note that this is much faster than creating a new document from raw text
+var document = original.copy();
 
-// very simple add content "Document title" to title element
-nodes[0]
-  // will remove all content, there is no for this extra computation
-  // if we know the element is empty
-  .remove()
-  // will add content just before endtag
-  .append('Document title')
-  // will send the content if all node parents are done too
-  .done();
+// a copied document will not effect is source
+// in this case the <html lang attribute is set
+document.find().only().elem('html').toValue().setAttr('lang', 'en');
 
-// just before the end of head add a script
-nodes[1]
-  // .insert is equal to DOM.insertAdjacentHTML
-  .insert('beforeend', '<script>console.log('added script in head');</script>')
-  // this is a node parent to nodes[0] so it is first at this point the content
-  // will be send. Doing nodes[0].insert('afterend') is more performant, but this
-  // should be supported to.
-  .done();
-
-// .find() where .all() was called returns an array of nodes.
-nodes[2].forEach(function (node, index) {
-  // will set content and a attribute
-  node
-    // again content is not automaticly removed
-    .remove()
-    .append('Menu #' + index)
-
-    // so goes for attributes
-    .attrRemove('data-id')
-    .attrAdd('data-id', index)
-
-    // send chunks
-    .done();
-
-// If domstream do not support sending list-items as the come in from an database
-// request, the the module failed in its goal.
-databaseRequest
-  // this can be done at any time
-  .ready(function () {
-    nodes[3].remove();
-  })
-  // for each new row
-  .each(function (content) {
-    // append will attually send content too if there is no parent waiting
-    // so after calling .append .attrRemove, .attrAdd and .insert is not allowed
-    // since that may require a rollback.
-    nodes[3]
-      .append('<li>' + content '<li>');
-  })
-  .end(function () {
-    // In this case .done will only send the end tag
-    nodes[3].done();
-  });
+// overwrite the content in the <title> tag
+document.find().only().elem('title').toValue().setContent('new title');
 ```
 
-##API documentation
+## API documentation
+
+**Note the following API is implemented, but the stream interface is missing.**
+
+The API exist as three diffrent classes.
+
+### Document
+
+A new Document instance is created from the function exported by `require('domstream')`.
+
+#### document.copy()
+
+All documents can be copied intro a new document, this allow you to have a standart
+response object and create new documents for each diffrent request.
+
+It is also worth noticing that `document.copy()` is much faster than createing a new
+object using the function exposed from `require('domstream')`.
+
+#### document.find()
+
+Manipulation of a document must be done from a `node` object. To get a node object
+one must first search for it. This is done by using a `search` object. Such object
+is returned by `document.find()`.
+
+#### document.content
+
+The manipulation document text can always be accessed by using `document.content`.
+
+### Search
+
+A new `Search` instance is returned by `document.find()` and `node.find()`.
+
+Any search method except `toArray` and `toValue` returns the `search` object itself.
+Search parameters can therefor be `chained`.
+
+Note that a search will first be performed when `toArray` or `toValue` is called.
+
+#### search.elem(tagname)
+
+Will match all elements with the given `tagname`.
+
+#### search.attr(name, [value])
+
+Will match all elements with the attribute `name`. If a `value` is given too the
+attributes value must match that too. The `value` argument can be a `string` or an
+regulare expression.
+
+#### search.only()
+
+If the search should only return the first element this method should be used.
+Note that because of the way results are buffered, calling any other search
+method after this followed by `toArray` or `toValue` will result in an error.
+
+Example of wrong usage:
+
+```JavaScript
+var search = document.find().elem('li').only();
+
+// this will work fine
+var listItem = search.toValue();
+
+// This will throw because the cache only contains one element
+// and it may not have have id="foo". Perform a new search instead.
+var anotherListItem = search.attr('id', 'foo').toValue();
+```
+
+#### search.toArray()
+
+This will always return an `array` of nodes, if no elements where found the array
+will be empty.
+
+#### search.toValue()
+
+The response depend on how the search was perform and its result.
+
+* If no elements was found this method will return `false`.
+* If `search.only()` was called it will return the found `node`.
+* If elements was found it will return an `array` of `node`s.
+
+### Node
+
+A node is returned by `search.toArray()`, `search.toValue()`, `node.getParent()`
+and `node.getChildren()`.
+
+Note that `node` objects are reused, so search querys there result in the same `node`
+will be equal.
+
+Example of equal nodes:
+
+```JavaScript
+var document = domstream('<html lang="en"></html>');
+
+// get the html element
+var html = document.find().only().elem('html').toValue();
+
+// get the first element with lang="en"
+var lang = document.find().only().attr('lang', 'en').toValue();
+
+// a equal check can the be performed
+if (html === lang) {
+  // Note: there is a better way to check the attribute value of a node
+  console.log('html element contains the attribute lang with value "en"');
+}
+```
+
+#### node.find()
+
+This returns a new `Search` instance, but it will only find elements within the `node`.
+This alllow finding elements within elements.
+
+Example of finding elements within elements:
+
+```JavaScript
+// this will always return false, since an element can have to tagnames
+var menuItems = document.find().elem('menu').elem('li').toValue();
+
+// insted find the <menu> node and then search for <li> nodes within <menu>
+var menuNode = document.find().only().elem('menu').toValue(),
+var menuItems = menuNode.find().elem('li').toArray();
+```
+
+**The following API is not yet documented:**
+
+#### node.tagName()
+
+#### node.isSingleton()
+
+#### node.isRoot()
+
+#### node.getParent()
+
+#### node.getChildren()
+
+#### node.isParentTo(child)
+
+#### node.insert(where, content)
+
+#### node.append(content)
+
+#### node.trim()
+
+#### node.getContent()
+
+#### node.setContent(content)
+
+#### node.getAttr(name)
+
+#### node.hasAttr(name)
+
+#### node.setAttr(name, value)
+
+#### node.removeAttr(name)
+
+#### node.done()
 
 ##License
 
