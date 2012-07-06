@@ -82,7 +82,7 @@ A new `Search` instance is returned by `document.find()` and `node.find()`.
 Any search method except `toArray` and `toValue` returns the `search` object itself.
 Search parameters can therefor be `chained`.
 
-Note that a search will first be performed when `toArray` or `toValue` is called.
+_Note that a search will first be performed when `toArray` or `toValue` is called._
 
 #### search.elem(tagname)
 
@@ -97,8 +97,9 @@ regulare expression.
 #### search.only()
 
 If the search should only return the first element this method should be used.
-Note that because of the way results are buffered, calling any other search
-method after this followed by `toArray` or `toValue` will result in an error.
+
+_Note that because of the way results are buffered, calling any other search
+method after this followed by `toArray` or `toValue` will result in an error._
 
 Example of wrong usage:
 
@@ -131,8 +132,8 @@ The response depend on how the search was perform and its result.
 A node is returned by `search.toArray()`, `search.toValue()`, `node.getParent()`
 and `node.getChildren()`.
 
-Note that `node` objects are reused, so search querys there result in the same `node`
-will be equal.
+_Note that `node` objects are reused, so search querys there result in the same `node`
+will be equal._
 
 Example of equal nodes:
 
@@ -172,35 +173,110 @@ var menuItems = menuNode.find().elem('li').toArray();
 
 #### node.tagName()
 
+will return the tagname of the element.
+
 #### node.isSingleton()
+
+A singelton element can contain attributes but no content, the `<input>` element is
+the most known singelton element.
+
+If an element containes `/>` at the end, it is parsed as a singelton element. However
+the following elements are parsed as an singleton element with or without `/>`:
+
+```JavaScript
+['br', 'col', 'link', 'hr', 'command', 'embed', 'img', 'input', 'meta', 'param', 'source'];
+```
+
+This list can be acessed and extended by `require('domstream').NO_ENDING_TAG`.
 
 #### node.isRoot()
 
+The root element do not exist as a string tag, but is pseudo-element there contains
+all other top-level elements.
+
+It can not contain attributes nor can it have a parent, using `node.setAttr`,
+`node.removeAttr`, `node.getParent`, `node.insert('beforebegin', content)` and
+`node.insert('afterend', content)` will therefor throw.
+
+If the node node is the root element `node.isRoot()` will return `true`.
+
+_Note, the only way to get the root-element is to find a top-level element
+(ussually `<html>`) and execute `node.getParent()`._
+
 #### node.getParent()
+
+This will return the parent node to the current node.
+
+_Note that using this method on the root element will throw._
 
 #### node.getChildren()
 
+This will return all children to the current node.
+
+_Note, executeing this method on a singelton element will throw._
+
 #### node.isParentTo(child)
+
+Check if this node is parent to `child`. It is the same as `child.getParent() === node`,
+but slightly faster.
 
 #### node.insert(where, content)
 
+This is very similar to `insertAdjacentHTML` from the real DOM. It will intert a string
+base `content` intro or around the element.
+
+The position is given my the first argument, it can be the following:
+
+* 'beforebegin' inserts the content just before the start-tag.
+* 'afterbegin' inserts the content just after the start-tag.
+* 'beforeend' inserts the content just before the end-tag.
+* 'afterend' inserts the content just after the end-tag.
+
+_Note that using `afterbegin` or `beforeend` on a singelton element will throw._
+
 #### node.append(content)
+
+Shorthand for `node.insert('beforeend', content)`.
+
+_Note that using this method on a singelton element will throw._
 
 #### node.trim()
 
+Will remove all content and child elements between the start- and end-tag.
+
+_Note that using this method on a singelton element will throw._
+
 #### node.getContent()
+
+Will return the content between start- and end-tag.
+
+_Note that using this method on a singelton element will throw._
 
 #### node.setContent(content)
 
+Will overwrite the content between start- and end-tag.
+
+_Note that using this method on a singelton element will throw._
+
 #### node.getAttr(name)
+
+Will return the attribute value given by `name` and `null` if it don't exist.
 
 #### node.hasAttr(name)
 
+Will return `true` if the attribute exist and `false` otherwise.
+
 #### node.setAttr(name, value)
+
+Will change the value if the attribute exist or add a new attribute if it didn't exist.
+
+_Note that using this method on the root element will throw._
 
 #### node.removeAttr(name)
 
-#### node.done()
+Will remove the attribute given by `name`.
+
+_Note that using this method on the root element will throw._
 
 ##License
 
