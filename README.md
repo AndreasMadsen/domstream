@@ -14,6 +14,9 @@ npm install domstream
 
 ##Example
 
+**Node this is still in progress, all the DOM api is implemented but
+the stream interface is not.**
+
 ```JavaScript
 var domstream = require('domstream');
 var fs = require('fs');
