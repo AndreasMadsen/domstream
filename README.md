@@ -51,7 +51,7 @@ document.find().only().elem('title').toValue().setContent('new title');
 
 **Note the following API is implemented, but the stream interface is missing.**
 
-The API exist as three diffrent classes.
+The API exist as three diffrent classes `Document`, `Search` and `Node`.
 
 ### Document
 
