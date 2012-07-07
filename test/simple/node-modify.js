@@ -16,6 +16,9 @@ var document = domstream(content);
 var testsuite = vows.describe('testing node modifier');
 
 // find and check node
+var root = document.find().only().elem('a').toValue().getParent();
+assert.strictEqual(root.elem, document.tree);
+
 var elemA = document.find().only().elem('a').toValue();
 assert.strictEqual(elemA.elem, document.tree.childrens[0]);
 
@@ -38,6 +41,18 @@ testsuite.addBatch({
       }
     }
   }, '<a><b  ab="b"><c ac ad="d"/><d ae af="f"></d></b><e></e><f/></a>')
+});
+
+testsuite.addBatch({
+  'when removeing attribute from root': {
+    topic: function () {
+      return root.removeAttr('fake');
+    },
+
+    'it should throw': function (error) {
+      assert.instanceOf(error, Error);
+    }
+  }
 });
 
 testsuite.addBatch({
@@ -74,6 +89,18 @@ testsuite.addBatch({
   }, '<a><b  ab="new" aaa="set"><c ac ad="d"/><d ae af="f"></d></b><e></e><f/></a>')
 });
 
+testsuite.addBatch({
+  'when modifying attribute from root': {
+    topic: function () {
+      return root.setAttr('fake', 'fail');
+    },
+
+    'it should throw': function (error) {
+      assert.instanceOf(error, Error);
+    }
+  }
+});
+
 // test content modification
 testsuite.addBatch({
   'when inserting content beforebegin': testResult({
@@ -90,6 +117,18 @@ testsuite.addBatch({
       }
     }
   }, '<a>bb<b  ab="new" aaa="set"><c ac ad="d"/><d ae af="f"></d></b><e></e><f/></a>')
+});
+
+testsuite.addBatch({
+  'when inserting content beforebegin on root': {
+    topic: function () {
+      return root.insert('beforebegin', 'bb');
+    },
+
+    'it should throw': function (error) {
+      assert.instanceOf(error, Error);
+    }
+  }
 });
 
 testsuite.addBatch({
@@ -141,6 +180,18 @@ testsuite.addBatch({
       }
     }
   }, '<a>bb<b  ab="new" aaa="set">ab<c ac ad="d"/><d ae af="f"></d>be</b>ae<e></e><f/></a>')
+});
+
+testsuite.addBatch({
+  'when inserting content afterend on root': {
+    topic: function () {
+      return root.insert('afterend', 'ae');
+    },
+
+    'it should throw': function (error) {
+      assert.instanceOf(error, Error);
+    }
+  }
 });
 
 testsuite.addBatch({

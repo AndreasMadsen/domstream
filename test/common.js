@@ -3,7 +3,6 @@
  * MIT License
  */
 
-var fs = require('fs');
 var path = require('path');
 var assert = require('assert');
 
@@ -13,7 +12,7 @@ exports.domstream = require(path.resolve(dirname, '../domstream.js'));
 
 exports.fixture = path.resolve(dirname, './fixture/');
 exports.template = path.resolve(exports.fixture, 'template.html');
-exports.parsed = path.resolve(exports.fixturername, 'parsed.json');
+exports.parsed = path.resolve(exports.fixture, 'parsed.json');
 
 // filter out any parent, to prevent a too deep search when doing deep match
 function removeParent(from) {
@@ -21,6 +20,7 @@ function removeParent(from) {
 
   Object.keys(from).forEach(function (key) {
     if (key === 'parent' || key === 'childrens') return;
+
     to[key] = from[key];
   });
 
