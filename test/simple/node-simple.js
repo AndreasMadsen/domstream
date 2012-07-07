@@ -240,33 +240,4 @@ testsuite.addBatch({
   }
 });
 
-// test equal
-testsuite.addBatch({
-  'when testing for equal on same element': {
-    topic: function () {
-      var html1 = document.find().only().elem('html').toValue();
-      var html2 = document.find().only().elem('html').toValue();
-
-      return html1.equal(html2);
-    },
-
-    'expect true': function (result) {
-      assert.isTrue(result);
-    }
-  },
-
-  'when testing for equal on diffrent element': {
-    topic: function () {
-      var body = document.find().only().elem('body').toValue();
-      var head = document.find().only().elem('head').toValue();
-
-      return body.equal(head);
-    },
-
-    'expect false': function (result) {
-      assert.isFalse(result);
-    }
-  }
-});
-
 testsuite.exportTo(module);
