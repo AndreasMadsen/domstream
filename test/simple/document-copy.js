@@ -21,13 +21,14 @@ vows.describe('testing document copy').addBatch({
       topic: function (document) {
         this.callback(null, document, document.copy());
       },
-    
+
       'the content property should math': function (error, orginal, copy) {
         assert.ifError(error);
         assert.strictEqual(copy.content, orginal.content);
       },
-      
+
       'the document tree should have been copyied': function (error, orginal, copy) {
+        assert.ifError(error);
         common.matchTree(copy.tree, orginal.tree);
       }
     }
