@@ -12,7 +12,18 @@ exports.domstream = require(path.resolve(dirname, '../domstream.js'));
 
 exports.fixture = path.resolve(dirname, './fixture/');
 exports.template = path.resolve(exports.fixture, 'template.html');
-exports.parsed = path.resolve(exports.fixture, 'parsed.json');
+exports.parsed = path.resolve(exports.fixture, 'template.json');
+
+exports.benchmark = {
+  small: {
+    html: exports.template,
+    json: exports.parsed
+  },
+  big: {
+    html: path.resolve(exports.fixture, 'big.html'),
+    json: path.resolve(exports.fixture, 'big.json')
+  }
+};
 
 // filter out any parent, to prevent a too deep search when doing deep match
 function removeParent(from) {

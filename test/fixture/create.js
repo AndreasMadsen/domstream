@@ -7,14 +7,20 @@ var fs = require('fs');
 var common = require('../common.js');
 var domstream = common.domstream;
 
-var document = domstream(fs.readFileSync(common.template, 'utf8'));
-var tree = document.tree;
+function parseFile(path) {
+  var document = domstream(fs.readFileSync(path, 'utf8'));
 
-var parrentFree = common.removeParent(document.tree);
-console.log(JSON.stringify(parrentFree));
+  var parrentFree = common.removeParent(document.tree);
+  console.log();
+  console.log();
+  console.log(JSON.stringify(parrentFree));
+  console.log(common.parsed);
+  console.log();
 
-console.log(common.parsed);
+  fs.writeFileSync(path.slice(0, path.length - 5) + '.json', JSON.stringify(parrentFree));
+}
 
-fs.writeFileSync(common.parsed, JSON.stringify(parrentFree));
+parseFile(common.benchmark.small.html);
+parseFile(common.benchmark.big.html);
 
 console.log('write file');
