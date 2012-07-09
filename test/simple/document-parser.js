@@ -21,9 +21,9 @@ vows.describe('testing HTML parser').addBatch({
     'its content property should match input': function (document) {
       assert.strictEqual(document.content, content);
     },
-    
+
     'the content should be parsed as expected': function (document) {
-       common.matchTree(document.tree, expected);
+      common.matchTree(document.tree, expected);
     }
   }
 }).exportTo(module);

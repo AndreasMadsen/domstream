@@ -10,7 +10,7 @@ var assert = require('assert');
 var common = require('../common.js');
 var domstream = common.domstream;
 
-var content = '<a><b aa ab="b"><c ac ad="d"/><d ae af="f"></d></b><e></e><f/></a>';
+var content = '<a><b aa ab=b><c ac ad="d"/><d ae af="f"></d></b><e></e><f/></a>';
 var document = domstream(content);
 
 var testsuite = vows.describe('testing node modifier');
@@ -40,7 +40,7 @@ testsuite.addBatch({
         assert.isNull(value);
       }
     }
-  }, '<a><b  ab="b"><c ac ad="d"/><d ae af="f"></d></b><e></e><f/></a>')
+  }, '<a><b  ab=b><c ac ad="d"/><d ae af="f"></d></b><e></e><f/></a>')
 });
 
 testsuite.addBatch({
@@ -232,7 +232,7 @@ testsuite.addBatch({
         assert.equal(inner, 'overwrite');
       }
     }
-  }, '<a><b aa ab="b">overwrite</b><e></e><f/></a>')
+  }, '<a><b aa ab=b>overwrite</b><e></e><f/></a>')
 });
 
 // test content remove
@@ -256,7 +256,7 @@ testsuite.addBatch({
         assert.equal(inner, '');
       }
     }
-  }, '<a><b aa ab="b"></b><e></e><f/></a>')
+  }, '<a><b aa ab=b></b><e></e><f/></a>')
 });
 
 

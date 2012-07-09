@@ -10,7 +10,7 @@ var copy = require('../../lib/copy.js');
 
 // read HTML content
 var file = JSON.parse(fs.readFileSync(common.benchmark.small.json, 'utf8'));
-var runs = 1000000;
+var runs = 100000;
 
 // run domstream tests with no-cache
 console.log('test parser');
