@@ -20,11 +20,12 @@ var fs = require('fs');
 
 // File content:
 // <!DOCTYPE html>
-//   <html lang="unset">
+//   <html lang="en">
 //      <head>
 //        <title>Unset title</title>
 //      </head>
-//      <body></body>
+//      <body>
+//      </body>
 //  </html>
 var content = fs.readFileSync('./template.html', 'utf8');
 
@@ -39,12 +40,18 @@ original.find().only().elem('head').toValue().insert('beforeend', '<script></scr
 // note that this is much faster than creating a new document from raw text
 var document = original.copy();
 
-// a copied document will not effect is source
-// in this case the <html lang attribute is set
-document.find().only().elem('html').toValue().setAttr('lang', 'en');
+// this document should be send to the client as a response
+document.pipe(process.stdout);
+document.resume();
 
-// overwrite the content in the <title> tag
-document.find().only().elem('title').toValue().setContent('new title');
+// first describe the nodes there will modified
+var title = document.find().only().elem('title').toValue();
+document.container([title]);
+
+// a copied document will not effect is source
+// overwrite the content in the <title> tag.
+// Also call `.done()` to indicate that modification is complete
+title.setContent('new title').done();
 ```
 
 ## API documentation
@@ -56,6 +63,9 @@ The API exist as three diffrent classes `Document`, `Search` and `Node`.
 ### Document
 
 A new Document instance is created from the function exported by `require('domstream')`.
+
+All documents are paused `ReadStream`s, they therefore have all the event and methods
+associated with a node `ReadStream`.
 
 #### document.copy()
 
@@ -74,6 +84,13 @@ is returned by `document.find()`.
 #### document.content
 
 The manipulation document text can always be accessed by using `document.content`.
+
+#### document.container(list)
+
+In order to send the `document` in chunks though a `stream`, the `.container` must
+be called with an `array` of `node` or list of `node`s.
+
+_Note, this method can only be called once per `document`._
 
 ### Search
 
@@ -131,6 +148,23 @@ The response depend on how the search was perform and its result.
 
 A node is returned by `search.toArray()`, `search.toValue()`, `node.getParent()`
 and `node.getChildren()`.
+
+If the `document` is should be used as a stream `document.container(list)` must be
+called.
+
+This allow `domstream` to predict the size and order of the chunks the `ReadStream`
+should emit. However it is also required to called `node.done()` once all modiciations
+are made. First then will a data chunk be emitted.
+
+If you wich to progressively send data chunks there are created from a database request,
+you can use `node.append(data)`. This will insert the data just before the `end-tag` and
+send the data until that tag. However after this you can `node.append()` is the only
+modification method there is allowed to be called. Be also aware that it is stil a requirement
+to call `node.done()`.
+
+Be aware that once `document.container(list)` is called modification is only allowed on nodes
+there was defined in `list` or there children. An atempt to modify any other node will result
+in `error throw`. However if `document.container(list)` wasn't called any node can be modified.
 
 _Note that `node` objects are reused, so search querys there result in the same `node`
 will be equal._
@@ -232,11 +266,27 @@ The position is given my the first argument, it can be the following:
 * 'beforeend' inserts the content just before the end-tag.
 * 'afterend' inserts the content just after the end-tag.
 
-_Note that using `afterbegin` or `beforeend` on a singleton element will throw._
+_Note that using `afterbegin` or `beforeend` on a singleton element will throw.
+And that using `beforebegin` or `afterend` on the root element will throw._
 
 #### node.append(content)
 
 Shorthand for `node.insert('beforeend', content)`.
+
+But will also send the content until the `endtag` if this is an container.
+This is highly useful in database requests, example:
+
+```JavaScript
+var ul = document.find().only().attr('id', 'results').toValue();
+
+request
+  .each(function (row) {
+    ul.append('<li>' + row + '</li>');
+  })
+  .done(function () {
+    ul.done();
+  });
+```
 
 _Note that using this method on a singleton element will throw._
 
@@ -277,6 +327,13 @@ _Note that using this method on the root element will throw._
 Will remove the attribute given by `name`.
 
 _Note that using this method on the root element will throw._
+
+#### node.done()
+
+Will send the content until the endtag, but only if there are no other containers
+before this one.
+
+_Note once called no other modify method can be called._
 
 ##License
 
