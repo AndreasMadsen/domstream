@@ -14,7 +14,7 @@ var domstream = common.domstream;
 var content = fs.readFileSync(common.template, 'utf8');
 var document = domstream(content);
 
-var testsuite = vows.describe('testing document stream');
+var testsuite = vows.describe('testing document stream - unordered');
 
 var input = document.find().only().elem('input').toValue();
 var menu = document.find().only().elem('menu').toValue();

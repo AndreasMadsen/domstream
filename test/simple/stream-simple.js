@@ -144,8 +144,12 @@ testsuite.addBatch({
     },
 
     'a data chunks should emit': function (data) {
+      var content = document.content.slice(
+        menu.elem.pos.beforeend,
+        input.elem.pos.beforebegin
+      );
       assert.notEqual(data[data.length - 1], '<');
-      assert.equal(data, '</menu>');
+      assert.equal(data, content);
     }
   }
 });
@@ -175,7 +179,7 @@ testsuite.addBatch({
 
     'a data chunk should emit': function (data) {
       var content = document.content.slice(
-          menu.elem.pos.beforeend + menu.elem.pos.afterend + 1,
+          input.elem.pos.beforebegin,
           document.tree.pos.beforeend + 1
         );
 
