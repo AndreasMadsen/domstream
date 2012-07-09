@@ -26,11 +26,16 @@ exports.benchmark = {
 };
 
 // filter out any parent, to prevent a too deep search when doing deep match
-function removeParent(from) {
+function normalizeTree(from) {
   var to = {};
 
   Object.keys(from).forEach(function (key) {
     if (key === 'parent' || key === 'childrens') return;
+
+    if (key === 'modify') {
+      to[key] = false;
+      return;
+    }
 
     to[key] = from[key];
   });
@@ -38,20 +43,20 @@ function removeParent(from) {
   if (!from.singleton) {
     to.childrens = [];
     from.childrens.forEach(function (child) {
-      to.childrens.push( removeParent(child) );
+      to.childrens.push( normalizeTree(child) );
     });
   }
 
   return to;
 }
-exports.removeParent = removeParent;
+exports.normalizeTree = normalizeTree;
 
 // Check that two dom trees match
 function matchTree(actual, expected) {
   assert.notEqual(actual, expected);
 
   // check that none circular properties match
-  assert.deepEqual(removeParent(actual), removeParent(expected));
+  assert.deepEqual(normalizeTree(actual), normalizeTree(expected));
 
   // check parentTree
   checkParrentTree(actual);

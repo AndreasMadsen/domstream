@@ -10,17 +10,16 @@ var domstream = common.domstream;
 function parseFile(path) {
   var document = domstream(fs.readFileSync(path, 'utf8'));
 
-  var parrentFree = common.removeParent(document.tree);
+  var normalize = common.normalizeTree(document.tree);
   console.log();
   console.log();
-  console.log(JSON.stringify(parrentFree));
+  console.log(JSON.stringify(normalize));
   console.log(common.parsed);
   console.log();
 
-  fs.writeFileSync(path.slice(0, path.length - 5) + '.json', JSON.stringify(parrentFree));
+  var filepath = path.slice(0, path.length - 5) + '.json';
+  fs.writeFileSync(filepath, JSON.stringify(normalize));
 }
 
 parseFile(common.benchmark.small.html);
 parseFile(common.benchmark.big.html);
-
-console.log('write file');

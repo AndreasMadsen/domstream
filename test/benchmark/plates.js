@@ -9,14 +9,14 @@ var common = require('../common.js');
 var benchmark = require('./runner.js');
 
 // read HTML content
-var small = fs.readFileSync(common.template, 'utf8');
-var big = fs.readFileSync(path.resolve(common.fixture, 'big.html'), 'utf8');
+var small = fs.readFileSync(common.benchmark.small.html, 'utf8');
+var big = fs.readFileSync(common.benchmark.big.html, 'utf8');
 
 // load module candiates
 var Plates = require('plates');
 var domstream = common.domstream;
 
-var runs = 100000,
+var runs = 10000,
     cache = domstream(small);
 
 // run plates tests

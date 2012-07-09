@@ -213,6 +213,8 @@ testsuite.addBatch({
 
 // test content overwrite
 var overwrite = domstream(content);
+    overwrite.container([overwrite.find().only().elem('a').toValue()]);
+
 var elemOB = overwrite.find().only().elem('b').toValue();
 assert.strictEqual(elemOB.elem, overwrite.tree.childrens[0].childrens[0]);
 
@@ -235,6 +237,8 @@ testsuite.addBatch({
 
 // test content remove
 var remove = domstream(content);
+    remove.container([remove.find().only().elem('a').toValue()]);
+
 var elemRB = remove.find().only().elem('b').toValue();
 assert.strictEqual(elemRB.elem, remove.tree.childrens[0].childrens[0]);
 
