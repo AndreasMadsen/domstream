@@ -12,7 +12,6 @@ var domstream = common.domstream;
 
 var content = '<a><b aa ab="b"><c ac ad="d"/><d ae af="f"></d></b><e></e><f/></a>';
 var document = domstream(content);
-    document.container([document.find().only().elem('a').toValue()]);
 
 var testsuite = vows.describe('testing node modifier');
 
