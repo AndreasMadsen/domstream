@@ -177,10 +177,10 @@ will return the tagname of the element.
 
 #### node.isSingleton()
 
-A singelton element can contain attributes but no content, the `<input>` element is
-the most known singelton element.
+A singleton element can contain attributes but no content, the `<input>` element is
+the most known singleton element.
 
-If an element containes `/>` at the end, it is parsed as a singelton element. However
+If an element containes `/>` at the end, it is parsed as a singleton element. However
 the following elements are parsed as an singleton element with or without `/>`:
 
 ```JavaScript
@@ -213,7 +213,7 @@ _Note that using this method on the root element will throw._
 
 This will return all children to the current node.
 
-_Note, executeing this method on a singelton element will throw._
+_Note, executeing this method on a singleton element will throw._
 
 #### node.isParentTo(child)
 
@@ -232,31 +232,31 @@ The position is given my the first argument, it can be the following:
 * 'beforeend' inserts the content just before the end-tag.
 * 'afterend' inserts the content just after the end-tag.
 
-_Note that using `afterbegin` or `beforeend` on a singelton element will throw._
+_Note that using `afterbegin` or `beforeend` on a singleton element will throw._
 
 #### node.append(content)
 
 Shorthand for `node.insert('beforeend', content)`.
 
-_Note that using this method on a singelton element will throw._
+_Note that using this method on a singleton element will throw._
 
 #### node.trim()
 
 Will remove all content and child elements between the start- and end-tag.
 
-_Note that using this method on a singelton element will throw._
+_Note that using this method on a singleton element will throw._
 
 #### node.getContent()
 
 Will return the content between start- and end-tag.
 
-_Note that using this method on a singelton element will throw._
+_Note that using this method on a singleton element will throw._
 
 #### node.setContent(content)
 
 Will overwrite the content between start- and end-tag.
 
-_Note that using this method on a singelton element will throw._
+_Note that using this method on a singleton element will throw._
 
 #### node.getAttr(name)
 

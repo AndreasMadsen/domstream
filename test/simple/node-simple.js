@@ -129,7 +129,7 @@ testsuite.addBatch({
 
 // test getChildren
 testsuite.addBatch({
-  'when getting children from singelton element': {
+  'when getting children from singleton element': {
     topic: function () {
       return document.find().only().elem('input').toValue().getChildren();
     },
@@ -187,7 +187,7 @@ testsuite.addBatch({
     }
   },
 
- 'when executeing isSingleton on singelton element': {
+ 'when executeing isSingleton on singleton element': {
     topic: function () {
       return document.find().only().elem('input').toValue().isSingleton();
     },
@@ -226,7 +226,7 @@ testsuite.addBatch({
     }
   },
 
-  'when executeing isParentTo on singelton element': {
+  'when executeing isParentTo on singleton element': {
     topic: function () {
       var html = document.find().only().elem('html').toValue();
       var input = document.find().only().elem('input').toValue();
