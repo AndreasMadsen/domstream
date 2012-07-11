@@ -308,6 +308,12 @@ Will remove all content and child elements between the start- and end-tag.
 
 _Note that using this method on a singleton element will throw._
 
+### node.remove()
+
+Will remove the element and all its content.
+
+_Note that using this method on the root element will throw._
+
 #### node.getContent()
 
 Will return the content between start- and end-tag.
