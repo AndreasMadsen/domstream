@@ -91,6 +91,14 @@ testsuite.addBatch({
   }, '<r><aa></aa><ta></ta><ab></ab><td></td><ac></ac></r>')
 });
 
+testsuite.addBatch({
+  'when removeing element': testResult({
+    topic: function () {
+      return ElemAB.remove();
+    }
+  }, '<r><aa></aa><ta></ta><td></td><ac></ac></r>')
+});
+
 function testResult(batch, content) {
   batch['the content should match'] = function (node) {
     if (node instanceof Error) throw node;
