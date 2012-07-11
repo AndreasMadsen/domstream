@@ -21,6 +21,9 @@ var document = domstream(content);
 var testsuite = vows.describe('testing node subparser');
 
 // find and check node
+var root = document.find().only().elem('r').toValue().getParent();
+assert.strictEqual(root.elem, document.tree);
+
 var ElemAB = document.find().only().elem('ab').toValue();
 assert.strictEqual(ElemAB.elem, document.tree.childrens[0].childrens[1]);
 
@@ -97,6 +100,18 @@ testsuite.addBatch({
       return ElemAB.remove();
     }
   }, '<r><aa></aa><ta></ta><td></td><ac></ac></r>')
+});
+
+testsuite.addBatch({
+  'when removeing root element': {
+    topic: function () {
+      return root.remove();
+    },
+
+    'it should throw': function (error) {
+      assert.instanceOf(error, Error);
+    }
+  }
 });
 
 function testResult(batch, content) {
