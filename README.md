@@ -81,6 +81,18 @@ Manipulation of a document must be done from a `node` object. To get a node obje
 one must first search for it. This is done by using a `search` object. Such object
 is returned by `document.find()`.
 
+#### document.live(flag)
+
+When manipulating the document by adding content there contain tags, the document tree
+is by default not updated. By executing `document.live(true)` the document tree will be
+updated, when any feature changes are made.
+
+This can at anytime be turned off again, by executing `document.live(true)`.
+
+_Note that the performance impact is approximately times three. However it is stil far
+more efficient than reparseing the the hole document with
+`document = domstream(document.content)`._
+
 #### document.content
 
 The manipulation document text can always be accessed by using `document.content`.
@@ -295,6 +307,12 @@ _Note that using this method on a singleton element will throw._
 Will remove all content and child elements between the start- and end-tag.
 
 _Note that using this method on a singleton element will throw._
+
+### node.remove()
+
+Will remove the element and all its content.
+
+_Note that using this method on the root element will throw._
 
 #### node.getContent()
 
