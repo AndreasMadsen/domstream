@@ -3,251 +3,230 @@
  * MIT License
  */
 
-var fs = require('fs');
-var vows = require('vows');
-var assert = require('assert');
 var flower = require('flower');
-
+var chai = require('chai');
 var common = require('../common.js');
 var domstream = common.domstream;
 
-var content = fs.readFileSync(common.template, 'utf8');
-var document = domstream(content);
+describe('testing document stream', function () {
+  var assert = chai.assert;
 
-var testsuite = vows.describe('testing document stream');
+  common.createTemplate(function (content) {
+    var doc = domstream(content);
 
-var input = document.find().only().elem('input').toValue();
-var menu = document.find().only().elem('menu').toValue();
-var li = document.find().elem('li').toValue()[1];
+    var input = doc.find().only().elem('input').toValue();
+    var menu = doc.find().only().elem('menu').toValue();
+    var li = doc.find().elem('li').toValue()[1];
 
-testsuite.addBatch({
-  'when setting containers': {
-    topic: document.container([input, menu, li]),
+    describe('when setting containers', function () {
+      doc.container([input, menu, li]),
 
-    'no error should throw': function (error) {
-      assert.ifError(error);
-    },
+      it('the containers should be filtered and sorted', function () {
+        assert.lengthOf(doc.containers, 2);
+        assert.strictEqual(doc.containers[0], menu);
+        assert.strictEqual(doc.containers[1], input);
+      });
+    });
 
-    'the containers should be filtered and sorted': function () {
-      assert.lengthOf(document.containers, 2);
-      assert.strictEqual(document.containers[0], menu);
-      assert.strictEqual(document.containers[1], input);
-    }
-  }
-});
+    describe('when setting containers twice', expectError(function () {
+      doc.container([input, menu, li]);
+    }));
 
-testsuite.addBatch({
-  'when setting containers twice': {
-    topic: function () {
-      return document.container([input, menu, li]);
-    },
+    describe('when resumeing output', function () {
+      var data; before(function (done) {
+        doc.once('data', function (chunk) {
+          data = chunk;
+          done();
+        });
+        doc.resume();
+      });
 
-    'an error should throw': function (error) {
-      assert.instanceOf(error, Error);
-    }
-  }
-});
+      it('the first data chunk should emit', function () {
+        assert.equal(data, doc.content.slice(0, menu.elem.pos.beforebegin));
+        assert.notEqual(data[data.length - 1], '<');
+      });
+    });
 
-testsuite.addBatch({
-  'when resumeing output': {
-    topic: function () {
-      document.once('data', this.callback.bind(this, null));
-      document.resume();
-    },
+    // test throw on nodes there are outside an container
+    var head = doc.find().only().elem('head').toValue();
+    testOfline(head, 'outside an container', true);
 
-    'the first data chunk should emit': function (chunk) {
-      assert.equal(chunk, document.content.slice(0, menu.elem.pos.beforebegin));
-      assert.notEqual(chunk[chunk.length - 1], '<');
-    }
-  }
-});
-
-// test throw on nodes there are outside an container
-var head = document.find().only().elem('head').toValue();
-testOfline(head, 'outside an container', true);
-
-// test appending content on subcontainer
-testsuite.addBatch({
-  'when appending content to subcontainer': {
-    topic: function () {
-      var self = this;
-
+    // test appending content on subcontainer
+    describe('when appending content to subcontainer', function () {
       function ondata() {
-        self.callback(new Error('data event emitted'), null);
+        throw new Error('data event emitted');
       }
 
-      document.once('data', ondata);
-      setTimeout(function() {
-        document.removeListener('data', ondata);
-        self.callback(null, null);
-      }, 200);
+      before(function () {
+        doc.once('data', ondata);
+        li.append('new content');
+      });
 
-      li.append('new content');
-    },
+      it('no data chunk should emit', function (done) {
+        setTimeout(function() {
+          doc.removeListener('data', ondata);
+          done();
+        }, 200);
+      });
 
-    'no data chunk should emit': function (error) {
-      assert.ifError(error);
-    }
-  },
+      describe('after appending content to subcontaner', function () {
+        li.setAttr('foo', 'value');
 
-  'after appending content to subcontaner': {
-    topic: function () {
-      li.setAttr('foo', 'value');
+        var value = li.getAttr('foo');
 
-      return li.getAttr('foo');
-    },
+        it('modification should stil be allowed', function () {
+          assert.equal(value, 'value');
+        });
+      });
+    });
 
-    'modification should stil be allowed': function (value) {
-      assert.equal(value, 'value');
-    }
-  }
-});
+    // test appending content on container
+    describe('when appending content to container', function () {
+      var data; before(function (done) {
+        doc.once('data', function (chunk) {
+          data = chunk;
+          done();
+        });
+        menu.append('<li>new item</li>');
+      });
 
-// test appending content on container
-testsuite.addBatch({
-  'when appending content to container': {
-    topic: function () {
-      document.once('data', this.callback.bind(this, null));
-      menu.append('<li>new item</li>');
-    },
+      it('a data chunks should emit', function () {
+        var content = doc.content.slice(menu.elem.pos.beforebegin, menu.elem.pos.beforeend);
+        assert.notEqual(data[data.length - 1], '<');
+        assert.equal(data, content);
+      });
+    });
 
-    'a data chunks should emit': function (data) {
-      var content = document.content.slice(menu.elem.pos.beforebegin, menu.elem.pos.beforeend);
-      assert.notEqual(data[data.length - 1], '<');
-      assert.equal(data, content);
-    }
-  }
-});
+    testOfline(menu, 'on a chunked container', false);
 
-testOfline(menu, 'on a chunked container', false);
+    describe('when appending content o a chunked container', function () {
+      var data; before(function (done) {
+        doc.once('data', function (chunk) {
+          data = chunk;
+          done();
+        });
+        menu.append('<li>new item</li>');
+      });
 
-testsuite.addBatch({
-  'when appending content o a chunked container': {
-    topic: function () {
-      document.once('data', this.callback.bind(this, null));
-      menu.append('<li>new item</li>');
-    },
 
-    'a data chunks should emit': function (data) {
-      assert.notEqual(data[data.length - 1], '<');
-      assert.equal(data, '<li>new item</li>');
-    }
-  }
-});
+      it('a data chunks should emit', function () {
+        assert.notEqual(data[data.length - 1], '<');
+        assert.equal(data, '<li>new item</li>');
+      });
+    });
 
-// test done on an container
-testsuite.addBatch({
-  'when calling done a container': {
-    topic: function () {
-      document.once('data', this.callback.bind(this, null));
-      menu.done();
-    },
 
-    'a data chunks should emit': function (data) {
-      var content = document.content.slice(
-        menu.elem.pos.beforeend,
-        input.elem.pos.beforebegin
-      );
-      assert.notEqual(data[data.length - 1], '<');
-      assert.equal(data, content);
-    }
-  }
-});
+    // test done on an container
+    describe('when calling done a container', function () {
+      var data; before(function (done) {
+        doc.once('data', function (chunk) {
+          data = chunk;
+          done();
+        });
+        menu.done();
+      });
 
-testOfline(menu, 'on a done container', true);
+      it('a data chunks should emit', function () {
+        var content = doc.content.slice(
+          menu.elem.pos.beforeend,
+          input.elem.pos.beforebegin
+        );
+        assert.notEqual(data[data.length - 1], '<');
+        assert.equal(data, content);
+      });
+    });
 
-// test modifty on a singleton container
-testsuite.addBatch({
-  'when modifying attributes on a singleton container': {
-    topic: function () {
+    testOfline(menu, 'on a done container', true);
+
+    // test modifty on a singleton container
+    describe('when modifying attributes on a singleton container', function () {
       input.setAttr('foo', 'value');
       return input.getAttr('foo');
-    },
 
-    'it should be set': function (value) {
-      assert.equal(value, 'value');
-    }
-  }
-});
+      it('it should be set', function (value) {
+        assert.equal(value, 'value');
+      });
+    });
 
-testsuite.addBatch({
-  'when calling done on on a singleton container': {
-    topic: function () {
-      document.once('data', this.callback.bind(this, null));
-      input.done();
-    },
+    describe('when calling done on on a singleton container', function () {
+      var data; before(function (done) {
+        doc.once('data', function (chunk) {
+          data = chunk;
+          done();
+        });
+        input.done();
+      });
 
-    'a data chunk should emit': function (data) {
-      var content = document.content.slice(
-          input.elem.pos.beforebegin,
-          document.tree.pos.beforeend + 1
-        );
+      it('a data chunk should emit', function () {
+        var content = doc.content.slice(
+            input.elem.pos.beforebegin,
+            doc.tree.pos.beforeend + 1
+          );
 
-      assert.notEqual(data[data.length - 1], '<');
-      assert.equal(data, content);
-    }
-  }
-});
+        assert.notEqual(data[data.length - 1], '<');
+        assert.equal(data, content);
+      });
+    });
 
-var emittedContent;
-flower.stream2buffer(document, function (error, buf) {
-  assert.ifError(error);
-  emittedContent = buf.toString();
-});
+    var emittedContent;
+    flower.stream2buffer(doc, function (error, buf) {
+      assert.ifError(error);
+      emittedContent = buf.toString();
+    });
 
-testsuite.addBatch({
-  'when all containers are filled': {
-    topic: function () {
-      this.callback(null, emittedContent);
-    },
+    describe('when all containers are filled', function () {
+      it('the emmited content should match the document content', function () {
+        assert.equal(doc.content, emittedContent);
+      });
+    });
 
-    'the emmited content should match the document content': function (content) {
-      assert.equal(document.content, content);
-    }
-  }
-});
+  });
 
-// set that everything there should throw, do throws
-function testOfline(node, text, testAppend) {
-  var test = {};
-
-  function testThrow(fn) {
-    return {
-      topic: fn,
-
-      'an error should throw': function (error) {
-        assert.instanceOf(error, Error);
-      }
+  function expectError(fn) {
+    return function () {
+      it('should throw an error', function () {
+        var error = null;
+        try {
+          fn();
+        } catch (e) {
+          error = e;
+        } finally {
+            assert.instanceOf(error, Error);
+        }
+      });
     };
   }
 
-  test['when trying to set content ' + text] = testThrow(function () {
-    node.setContent('fail');
-  });
+  // set that everything there should throw, do throws
+  function testOfline(node, text, testAppend) {
+    describe(text, function () {
 
-  test['when trying to remove content ' + text] = testThrow(function () {
-    node.trim();
-  });
+      describe('when trying to set content', expectError(function () {
+        node.setContent('fail');
+      }));
 
-  if (testAppend) {
-    test['when trying to append content ' + text] = testThrow(function () {
-      node.append('fail');
+      describe('when trying to remove content', expectError(function () {
+        node.trim();
+      }));
+
+      if (testAppend) {
+        describe('when trying to append content', expectError(function () {
+          node.append('fail');
+        }));
+      }
+
+      describe('when trying to insert content', expectError(function () {
+        node.insert('afterend', 'fail');
+      }));
+
+      describe('when trying to remove attribute', expectError(function () {
+        node.removeAttr('fail');
+      }));
+
+      describe('when trying to set attribute', expectError(function () {
+        node.setAttr('fail');
+      }));
+
     });
   }
-
-  test['when trying to insert content ' + text] = testThrow(function () {
-    node.insert('afterend', 'fail');
-  });
-
-  test['when trying to remove attribute ' + text] = testThrow(function () {
-    node.removeAttr('fail');
-  });
-
-  test['when trying to set attribute ' + text] = testThrow(function () {
-    node.setAttr('fail');
-  });
-
-  testsuite.addBatch(test);
-}
-
-testsuite.exportTo(module);
+});

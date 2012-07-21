@@ -4,7 +4,7 @@
   "version": "0.4.1",
   "author": "Andreas Madsen <amwebdk@gmail.com>",
   "scripts": {
-    "test": "vows test/simple/* --spec"
+    "test": "mocha --ui bdd --reporter spec test/simple/*"
   },
   "main": "./domstream.js",
   "repository" : {
@@ -21,7 +21,8 @@
     "html"
   ],
   "devDependencies": {
-    "vows" :  "0.6.x",
+    "mocha" :  "1.3.x",
+    "chai": "1.1.x",
     "flower": "0.5.x"
   },
   "license": "MIT",

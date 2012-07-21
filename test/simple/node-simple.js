@@ -3,241 +3,203 @@
  * MIT License
  */
 
-var fs = require('fs');
-var vows = require('vows');
-var assert = require('assert');
-
+var chai = require('chai');
 var common = require('../common.js');
 var domstream = common.domstream;
 
-var content = fs.readFileSync(common.template, 'utf8');
-var document = domstream(content);
+describe('testing node simple', function () {
+  var assert = chai.assert;
 
-var testsuite = vows.describe('testing node simple');
+  common.createTemplate(function (content) {
+    var doc = domstream(content);
 
-// test tagName
-testsuite.addBatch({
-  'when getting tagName form element': {
-    topic: function () {
-      return document.find().only().elem('html').toValue().tagName();
-    },
+    describe('when getting tagName from', function () {
 
-    'expect value': function (result) {
-      assert.equal(result, 'html');
+      describe('normal element', function () {
+        var result = doc.find().only().elem('html').toValue().tagName();
+
+        it('expect value', function () {
+          assert.equal(result, 'html');
+        });
+      });
+
+      describe('root', expectError(function () {
+        doc.find().only().elem('html').toValue().getParent().tagName();
+      }));
+    });
+
+    describe('when getting content from', function () {
+
+      describe('singleton element', expectError(function () {
+        doc.find().only().elem('input').toValue().getContent();
+      }));
+
+      describe('normal element', function () {
+        var result = doc.find().only().elem('footer').toValue().getContent();
+
+        it('expect value', function () {
+          assert.equal(result, 'Bottom');
+        });
+      });
+    });
+
+    describe('when checking for attribute there', function () {
+      describe('is missing', function () {
+        var result = doc.find().only().elem('html').toValue().hasAttr('missing');
+
+        it('expect false', function () {
+          assert.isFalse(result);
+        });
+      });
+
+      describe('do exist', function () {
+        var result = doc.find().only().elem('html').toValue().hasAttr('lang');
+
+        it('expect true', function () {
+          assert.isTrue(result);
+        });
+      });
+    });
+
+    describe('when reading attribute there', function () {
+
+      describe('is missing', function () {
+          var result = doc.find().only().elem('html').toValue().getAttr('missing');
+
+        it('expect null', function () {
+          assert.isNull(result);
+        });
+      });
+
+      describe('do exist', function () {
+        var result = doc.find().only().elem('html').toValue().getAttr('lang');
+
+        it('expect value', function () {
+          assert.equal(result, 'en');
+        });
+      });
+    });
+
+    describe('when getting parent from', function () {
+
+      describe('element', function () {
+        var result = doc.find().only().elem('head').toValue().getParent();
+
+        it('expect parent node', function () {
+          assert.ok(result === doc.find().only().elem('html').toValue());
+        });
+      });
+
+      describe('root', expectError(function () {
+        doc.find().only().elem('html').toValue().getParent().getParent();
+      }));
+    });
+
+    describe('when getting children from', function () {
+
+      describe('singleton element', expectError(function () {
+        doc.find().only().elem('input').toValue().getChildren();
+      }));
+
+      describe('normal element', function () {
+        var list = doc.find().only().elem('html').toValue().getChildren();
+
+        it('expect child list', function () {
+          assert.lengthOf(list, 2);
+          assert.ok(list[0].elem === doc.tree.childrens[0].childrens[0]);
+          assert.ok(list[1].elem === doc.tree.childrens[0].childrens[1]);
+        });
+      });
+    });
+
+    describe('when executeing isRoot on', function () {
+
+      describe('normal element', function () {
+        var result = doc.find().only().elem('html').toValue().isRoot();
+
+        it('expect false', function () {
+          assert.isFalse(result);
+        });
+      });
+
+      describe('root', function () {
+        var result = doc.find().only().elem('html').toValue().getParent().isRoot();
+
+        it('expect true', function () {
+          assert.isTrue(result);
+        });
+      });
+    });
+
+    describe('when executeing isSingleton on', function () {
+
+      describe('normal element', function () {
+        var result = doc.find().only().elem('div').toValue().isSingleton();
+
+        it('expect false', function () {
+          assert.isFalse(result);
+        });
+      });
+
+     describe('singleton element', function () {
+        var result = doc.find().only().elem('input').toValue().isSingleton();
+
+        it('expect true', function () {
+          assert.isTrue(result);
+        });
+      });
+    });
+
+    describe('when executeing isParentTo on', function () {
+
+      describe('normal child element', function () {
+        var html = doc.find().only().elem('html').toValue();
+        var body = doc.find().only().elem('body').toValue();
+
+        var result = html.isParentTo(body);
+
+        it('expect true', function () {
+          assert.isTrue(result);
+        });
+      });
+
+      describe('normal none-child element', function () {
+        var body = doc.find().only().elem('body').toValue();
+        var head = doc.find().only().elem('head').toValue();
+
+        var result = body.isParentTo(head);
+
+        it('expect false', function () {
+          assert.isFalse(result);
+        });
+      });
+
+      describe('singleton element', function () {
+        var html = doc.find().only().elem('html').toValue();
+        var input = doc.find().only().elem('input').toValue();
+
+        var result = input.isParentTo(html);
+
+        it('expect false', function () {
+          assert.isFalse(result);
+        });
+      });
+
+    });
+
+    function expectError(fn) {
+      return function () {
+        it('should throw an error', function () {
+          var error = null;
+          try {
+            fn();
+          } catch (e) {
+            error = e;
+          } finally {
+              assert.instanceOf(error, Error);
+          }
+        });
+      };
     }
-  },
-
-  'when getting tagName from root': {
-    topic: function () {
-      return document.find().only().elem('html').toValue().getParent().tagName();
-    },
-
-    'expect throw': function (error) {
-      assert.instanceOf(error, Error);
-    }
-  }
+  });
 });
-
-// test getContent
-testsuite.addBatch({
-  'when getting content form singleton element': {
-    topic: function () {
-      return document.find().only().elem('input').toValue().getContent();
-    },
-
-    'expect throw': function (error) {
-      assert.instanceOf(error, Error);
-    }
-  },
-
-  'when getting content normal element': {
-    topic: function () {
-      return document.find().only().elem('footer').toValue().getContent();
-    },
-
-    'expect value': function (result) {
-      assert.equal(result, 'Bottom');
-    }
-  }
-});
-
-// test hasAttr and getAttr
-testsuite.addBatch({
-  'when checking for missing attribute': {
-    topic: function () {
-      return document.find().only().elem('html').toValue().hasAttr('missing');
-    },
-
-    'expect false': function (result) {
-      assert.isFalse(result);
-    }
-  },
-
-  'when checking for existing attribute': {
-    topic: function () {
-      return document.find().only().elem('html').toValue().hasAttr('lang');
-    },
-
-    'expect true': function (result) {
-      assert.isTrue(result);
-    }
-  },
-
-  'when reading missing attribute': {
-    topic: function () {
-      return document.find().only().elem('html').toValue().getAttr('missing');
-    },
-
-    'expect null': function (result) {
-      assert.isNull(result);
-    }
-  },
-
-  'when reading existing attribute': {
-    topic: function () {
-      return document.find().only().elem('html').toValue().getAttr('lang');
-    },
-
-    'expect value': function (result) {
-      assert.equal(result, 'en');
-    }
-  }
-});
-
-// test getParrent
-testsuite.addBatch({
-  'when getting parent form element': {
-    topic: function () {
-      return document.find().only().elem('head').toValue().getParent();
-    },
-
-    'expect parent node': function (result) {
-      assert.strictEqual(result, document.find().only().elem('html').toValue());
-    }
-  },
-
-  'when getting parent from root': {
-    topic: function () {
-      return document.find().only().elem('html').toValue().getParent().getParent();
-    },
-
-    'expect throw': function (error) {
-      assert.instanceOf(error, Error);
-    }
-  }
-});
-
-// test getChildren
-testsuite.addBatch({
-  'when getting children from singleton element': {
-    topic: function () {
-      return document.find().only().elem('input').toValue().getChildren();
-    },
-
-    'expect throw': function (error) {
-      assert.instanceOf(error, Error);
-    }
-  },
-
-  'when getting children from normal element': {
-    topic: function () {
-      return document.find().only().elem('html').toValue().getChildren();
-    },
-
-    'expect child list': function (list) {
-      assert.lengthOf(list, 2);
-      assert.strictEqual(list[0].elem, document.tree.childrens[0].childrens[0]);
-      assert.strictEqual(list[1].elem, document.tree.childrens[0].childrens[1]);
-    }
-  }
-});
-
-// test isRoot
-testsuite.addBatch({
-  'when executeing isRoot on element': {
-    topic: function () {
-      return document.find().only().elem('html').toValue().isRoot();
-    },
-
-    'expect false': function (result) {
-      assert.isFalse(result);
-    }
-  },
-
-  'when executeing isRoot on root': {
-    topic: function () {
-      return document.find().only().elem('html').toValue().getParent().isRoot();
-    },
-
-    'expect true': function (result) {
-      assert.isTrue(result);
-    }
-  }
-});
-
-// test isSingleton
-testsuite.addBatch({
-  'when executeing isSingleton on normal element': {
-    topic: function () {
-      return document.find().only().elem('div').toValue().isSingleton();
-    },
-
-    'expect false': function (result) {
-      assert.isFalse(result);
-    }
-  },
-
- 'when executeing isSingleton on singleton element': {
-    topic: function () {
-      return document.find().only().elem('input').toValue().isSingleton();
-    },
-
-    'expect true': function (result) {
-      assert.isTrue(result);
-    }
-  }
-});
-
-// test isParentTo
-testsuite.addBatch({
-  'when executeing isParentTo on normal child element': {
-    topic: function () {
-      var html = document.find().only().elem('html').toValue();
-      var body = document.find().only().elem('body').toValue();
-
-      return html.isParentTo(body);
-    },
-
-    'expect true': function (result) {
-      assert.isTrue(result);
-    }
-  },
-
-  'when executeing isParentTo on normal none-child element': {
-    topic: function () {
-      var body = document.find().only().elem('body').toValue();
-      var head = document.find().only().elem('head').toValue();
-
-      return body.isParentTo(head);
-    },
-
-    'expect false': function (result) {
-      assert.isFalse(result);
-    }
-  },
-
-  'when executeing isParentTo on singleton element': {
-    topic: function () {
-      var html = document.find().only().elem('html').toValue();
-      var input = document.find().only().elem('input').toValue();
-
-      return input.isParentTo(html);
-    },
-
-    'expect false': function (result) {
-      assert.isFalse(result);
-    }
-  }
-});
-
-testsuite.exportTo(module);

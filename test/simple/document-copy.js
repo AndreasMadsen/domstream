@@ -3,34 +3,29 @@
  * MIT License
  */
 
-var fs = require('fs');
-var vows = require('vows');
-var assert = require('assert');
-
+var chai = require('chai');
 var common = require('../common.js');
 var domstream = common.domstream;
 
-var content = fs.readFileSync(common.template, 'utf8');
+describe('testing document copy', function () {
+  var assert = chai.assert;
+  common.createTemplate(function (content) {
 
-vows.describe('testing document copy').addBatch({
+    describe('when creating a new document', function () {
+      var orginal = domstream(content);
 
-  'when creating a new document': {
-    topic: domstream(content),
+      describe('and copying it to an new document', function () {
+        var copy = orginal.copy();
 
-    'and copying it to an new document': {
-      topic: function (document) {
-        this.callback(null, document, document.copy());
-      },
+        it('the content property should math', function () {
+          assert.strictEqual(copy.content, orginal.content);
+        });
 
-      'the content property should math': function (error, orginal, copy) {
-        assert.ifError(error);
-        assert.strictEqual(copy.content, orginal.content);
-      },
+        it('the document tree should have been copyied', function () {
+          common.matchTree(copy.tree, orginal.tree);
+        });
+      });
 
-      'the document tree should have been copyied': function (error, orginal, copy) {
-        assert.ifError(error);
-        common.matchTree(copy.tree, orginal.tree);
-      }
-    }
-  }
-}).exportTo(module);
+    });
+  });
+});

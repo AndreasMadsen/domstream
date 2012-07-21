@@ -3,6 +3,7 @@
  * MIT License
  */
 
+var fs = require('fs');
 var path = require('path');
 var assert = require('assert');
 
@@ -23,6 +24,20 @@ exports.benchmark = {
     html: path.resolve(exports.fixture, 'big.html'),
     json: path.resolve(exports.fixture, 'big.json')
   }
+};
+
+// mostly for compatibility with domstream-client
+var templateContent = null;
+exports.createTemplate = function (cb) {
+  if (templateContent === null) {
+    templateContent = fs.readFileSync(exports.template, 'utf8');
+  }
+
+  cb(templateContent);
+};
+
+exports.createContent = function (content, cb) {
+  cb(content);
 };
 
 // filter out any parent, to prevent a too deep search when doing deep match

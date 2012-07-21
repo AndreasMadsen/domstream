@@ -3,43 +3,38 @@
  * MIT License
  */
 
-var fs = require('fs');
-var vows = require('vows');
-var assert = require('assert');
-
+var chai = require('chai');
 var common = require('../common.js');
 var domstream = common.domstream;
 
-var content = fs.readFileSync(common.template, 'utf8');
-var document = domstream(content);
+describe('testing deep document search', function () {
+  var assert = chai.assert;
 
-var html = document.tree.childrens[0];
-var menuElem = html.childrens[1].childrens[1];
+  common.createTemplate(function (content) {
+    var doc = domstream(content);
 
-var testsuite = vows.describe('testing deep document search');
+    var menuElem = doc.tree.childrens[0].childrens[1].childrens[1];
+    var itemsElem = menuElem.childrens;
 
-testsuite.addBatch({
+    describe('searching for menu', function () {
+      var menu = doc.find().only().elem('menu').toValue();
 
-  'searching for menu': {
-    topic: document.find().only().elem('menu').toValue(),
+      it('the result should match', function () {
+        assert.ok(menu.elem === menuElem);
+      });
 
-    'the result should match': function (menu) {
-      assert.strictEqual(menu.elem, menuElem);
-    },
+      describe('when performing deep search on menu', function () {
+        var items = menu.find().elem('li').toValue();
 
-    'when performing deep search on menu': {
-      topic: function (menu) {
-        return menu.find().elem('li').toValue();
-      },
+        it('only subchildrens should be found', function () {
+          assert.lengthOf(items, 3);
 
-      'only subchildrens should be found': function (list) {
-        assert.lengthOf(list, 3);
-        list.forEach(function (node, index) {
-          assert.strictEqual(node.elem, menuElem.childrens[index]);
+          for (var i = 0, l = items.length; i < l; i++) {
+            assert.ok(items[i].elem === itemsElem[i]);
+          }
         });
-      }
-    }
-  }
-});
+      });
+    });
 
-testsuite.exportTo(module);
+  });
+});

@@ -4,26 +4,27 @@
  */
 
 var fs = require('fs');
-var vows = require('vows');
-var assert = require('assert');
-
+var chai = require('chai');
 var common = require('../common.js');
 var domstream = common.domstream;
 
-var content = fs.readFileSync(common.template);
 var expected = JSON.parse(fs.readFileSync(common.parsed, 'utf8'));
 
-vows.describe('testing HTML parser').addBatch({
+describe('testing HTML parser', function () {
+  var assert = chai.assert;
+  common.createTemplate(function (content) {
 
-  'when creating a new document': {
-    topic: domstream(content),
+    describe('when creating a new document', function () {
+      var doc = domstream(content);
 
-    'its content property should match input': function (document) {
-      assert.strictEqual(document.content, content.toString());
-    },
+      it('its content property should match input', function () {
+        assert.strictEqual(doc.content, content.toString());
+      });
 
-    'the content should be parsed as expected': function (document) {
-      common.matchTree(document.tree, expected);
-    }
-  }
-}).exportTo(module);
+      it('the content should be parsed as expected', function () {
+        common.matchTree(doc.tree, expected);
+      });
+
+    });
+  });
+});

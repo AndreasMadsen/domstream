@@ -3,131 +3,178 @@
  * MIT License
  */
 
-var vows = require('vows');
-var assert = require('assert');
-
+var chai = require('chai');
 var common = require('../common.js');
 var domstream = common.domstream;
 
-var content = '<r>' +
-                '<aa></aa>' +
-                '<ab>' +
-                  '<b></b>' +
-                '</ab>' +
-                '<ac></ac>' +
-              '</r>';
-var document = domstream(content);
+describe('testing node subparser', function() {
+  var assert = chai.assert;
+  var content = '<r>' +
+                  '<aa></aa>' +
+                  '<ab>' +
+                    '<b></b>' +
+                  '</ab>' +
+                  '<ac></ac>' +
+                '</r>';
 
-var testsuite = vows.describe('testing node subparser');
+  common.createContent(content, function (content) {
+    var doc = domstream(content).live(true);
 
-// find and check node
-var root = document.find().only().elem('r').toValue().getParent();
-assert.strictEqual(root.elem, document.tree);
-
-var ElemAB = document.find().only().elem('ab').toValue();
-assert.strictEqual(ElemAB.elem, document.tree.childrens[0].childrens[1]);
-
-// activeate subparser
-document.live(true);
-
-testsuite.addBatch({
-  'when inserting content beforebegin': testResult({
-    topic: function () {
-      return ElemAB.insert('beforebegin', '<ta></ta>');
+    // find and check node
+    var root = doc.find().only().elem('r').toValue().getParent();
+    while (!root.isRoot()) {
+      root = root.getParent();
     }
-  }, '<r><aa></aa><ta></ta><ab><b></b></ab><ac></ac></r>')
-});
+    assert.ok(root.elem === doc.tree);
 
-testsuite.addBatch({
-  'when inserting content afterbegin': testResult({
-    topic: function () {
-      return ElemAB.insert('afterbegin', '<tb></tb>');
-    }
-  }, '<r><aa></aa><ta></ta><ab><tb></tb><b></b></ab><ac></ac></r>')
-});
+    var ElemAB = doc.find().only().elem('ab').toValue();
+    assert.ok(ElemAB.elem === doc.tree.childrens[0].childrens[1]);
 
-testsuite.addBatch({
-  'when inserting content beforeend': testResult({
-    topic: function () {
-      return ElemAB.insert('beforeend', '<tc></tc>');
-    }
-  }, '<r><aa></aa><ta></ta><ab><tb></tb><b></b><tc></tc></ab><ac></ac></r>')
-});
+    describe('when inserting content', function () {
+      describe('beforebegin', testResult({
+        expect: '<r><aa></aa><ta></ta><ab><b></b></ab><ac></ac></r>',
 
-testsuite.addBatch({
-  'when inserting content afterend': testResult({
-    topic: function () {
-      return ElemAB.insert('afterend', '<td></td>');
-    }
-  }, '<r><aa></aa><ta></ta><ab><tb></tb><b></b><tc></tc></ab><td></td><ac></ac></r>')
-});
+        topic: function () {
+          return ElemAB.insert('beforebegin', '<ta></ta>');
+        }
+      }));
 
-testsuite.addBatch({
-  'when appending content': testResult({
-    topic: function () {
-      return ElemAB.append('<te></te>');
-    }
-  }, '<r><aa></aa><ta></ta><ab><tb></tb><b></b><tc></tc><te></te></ab><td></td><ac></ac></r>')
-});
+      describe('afterbegin', testResult({
+        expect: '<r><aa></aa><ta></ta><ab><tb></tb><b></b></ab><ac></ac></r>',
 
-testsuite.addBatch({
-  'when overwriting content': testResult({
-    topic: function () {
-      return ElemAB.append('<tf></tf>');
-    }
-  }, '<r><aa></aa><ta></ta><ab><tb></tb><b></b><tc></tc><te></te><tf></tf></ab><td></td><ac></ac></r>')
-});
+        topic: function () {
+          return ElemAB.insert('afterbegin', '<tb></tb>');
+        }
+      }));
 
-testsuite.addBatch({
-  'when overwriting content': testResult({
-    topic: function () {
-      return ElemAB.setContent('<tb></tb><tc></tc>');
-    }
-  }, '<r><aa></aa><ta></ta><ab><tb></tb><tc></tc></ab><td></td><ac></ac></r>')
-});
+      describe('beforeend', testResult({
+        expect: '<r><aa></aa><ta></ta><ab><tb></tb><b></b><tc></tc></ab><ac></ac></r>',
 
-testsuite.addBatch({
-  'when removeing content': testResult({
-    topic: function () {
-      return ElemAB.trim();
-    }
-  }, '<r><aa></aa><ta></ta><ab></ab><td></td><ac></ac></r>')
-});
+        topic: function () {
+          return ElemAB.insert('beforeend', '<tc></tc>');
+        }
+      }));
 
-testsuite.addBatch({
-  'when removeing element': testResult({
-    topic: function () {
-      return ElemAB.remove();
-    }
-  }, '<r><aa></aa><ta></ta><td></td><ac></ac></r>')
-});
+      describe('afterend', testResult({
+        expect: '<r><aa></aa><ta></ta><ab><tb></tb><b></b><tc></tc></ab><td></td><ac></ac></r>',
 
-testsuite.addBatch({
-  'when removeing root element': {
-    topic: function () {
-      return root.remove();
-    },
+        topic: function () {
+          return ElemAB.insert('afterend', '<td></td>');
+        }
+      }));
+    });
 
-    'it should throw': function (error) {
-      assert.instanceOf(error, Error);
-    }
+    describe('when appending', function () {
+      describe('content', testResult({
+        expect: '<r><aa></aa><ta></ta><ab><tb></tb><b></b><tc></tc><te></te></ab><td></td><ac></ac></r>',
+
+        topic: function () {
+          return ElemAB.append('<te></te>');
+        }
+      }));
+
+      describe('content again', testResult({
+        expect: '<r><aa></aa><ta></ta><ab><tb></tb><b></b><tc></tc><te></te><tf></tf></ab><td></td><ac></ac></r>',
+
+        topic: function () {
+          return ElemAB.append('<tf></tf>');
+        }
+      }));
+    });
+
+    describe('when overwriting', function () {
+      describe('content', testResult({
+        expect: '<r><aa></aa><ta></ta><ab><tb></tb><tc></tc></ab><td></td><ac></ac></r>',
+
+        topic: function () {
+          return ElemAB.setContent('<tb></tb><tc></tc>');
+        }
+      }));
+    });
+
+    describe('when removeing', function () {
+      describe('content', testResult({
+        expect: '<r><aa></aa><ta></ta><ab></ab><td></td><ac></ac></r>',
+
+        topic: function () {
+          return ElemAB.trim();
+        }
+      }));
+
+      describe('element', testResult({
+        expect: '<r><aa></aa><ta></ta><td></td><ac></ac></r>',
+
+        topic: function () {
+          return ElemAB.remove();
+        }
+      }));
+
+      describe('root element', expectError(function () {
+        root.remove();
+      }));
+    });
+
+  });
+
+  function testResult(batch) {
+    var content = batch.expect;
+    delete batch.expect;
+
+    batch['the content should match'] = function (node) {
+      assert.strictEqual(node.document.content, content);
+    };
+
+    batch['the tree should match'] = function (node) {
+      common.matchTree(node.document.tree, domstream(content).tree);
+    };
+
+    return createMochaTest(batch, {});
+  }
+
+  function createMochaTest(batch, prev) {
+    return function () {
+
+      if (batch.topic) {
+        // setup topic
+        var topic = batch.topic;
+        delete batch.topic;
+
+        var curr = {};
+        before(function () {
+          curr.result = topic(prev.result);
+        });
+      }
+
+      for (var key in batch) (function (key) {
+        if (batch[key] instanceof Function) {
+          if (batch[key].length == 2) {
+            it(key, function (done) {
+              batch[key](curr.result, done);
+            });
+          } else {
+            it(key, function () {
+              batch[key](curr.result);
+            });
+          }
+        } else {
+          describe(key, createMochaTest(batch[key], curr));
+        }
+      })(key);
+    };
+  }
+
+  function expectError(fn) {
+    return function () {
+      it('should throw an error', function () {
+        var error = null;
+        try {
+          fn();
+        } catch (e) {
+          error = e;
+        } finally {
+            assert.instanceOf(error, Error);
+        }
+      });
+    };
   }
 });
-
-function testResult(batch, content) {
-  batch['the content should match'] = function (node) {
-    if (node instanceof Error) throw node;
-
-    assert.strictEqual(node.document.content, content);
-  };
-
-  batch['the tree should match'] = function (node) {
-    if (node instanceof Error) throw node;
-
-    common.matchTree(node.document.tree, domstream(content).tree);
-  };
-
-  return batch;
-}
-
-testsuite.exportTo(module);
