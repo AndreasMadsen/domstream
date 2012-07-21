@@ -6,6 +6,31 @@
 > but the unfortunat is that domstream requires a very pretty html document
 > and is not as sufisticated as the real DOM.
 
+##Goal
+
+1. Be Very Very fast!
+  * To set or add something is prioritised over getting something.
+2. Provide the same possibilities as the real DOM
+3. Expose a `ReadStream` interface, there output the modified document.
+
+##Performance
+
+See [test/benchmark/compare.js](https://github.com/AndreasMadsen/domstream/blob/master/test/benchmark/compare.js)
+for benchmark code.
+
+Executed on cpu: `2.66 Ghz Intel Core i7` and node: `v0.8.4-pre`.
+
+| Case                        | ms / run - less is better |
+|----------------------------:|:--------------------------|
+| **a small document** (693 B)                            |
+| plates                      | 0.0532                    |
+| domstream - no cache        | 0.0465                    |
+| domstream - cache           | 0.0259                    |
+| **a big document** (5520 B)                             |
+| plates                      | 0.2928                    |
+| domstream - no cache        | 0.2168                    |
+| domstream - cache           | 0.1162                    |
+
 ##Installation
 
 ```sheel

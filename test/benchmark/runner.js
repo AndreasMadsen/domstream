@@ -6,20 +6,16 @@
 module.exports = function benchmark(title, runs, fn) {
   console.log('=== ' + title + ' ===');
 
-  var i = runs, times = [], now = 0;
+  var i = runs;
+  var now = Date.now();
   while(i--) {
-    now = Date.now();
     fn();
-    times.push(Date.now() - now);
   }
 
   // calculate results
-  var ms = 0;
-  times.forEach(function (time) {
-    ms += time;
-  });
+  var ms = Date.now() - now;
 
-  console.log('benchmark took %d milliseconds', ms / runs);
+  console.log('speed: %d milliseconds / run', ms / runs);
   console.log();
   console.log();
 };
