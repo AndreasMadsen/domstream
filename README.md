@@ -81,8 +81,6 @@ title.setContent('new title').done();
 
 ## API documentation
 
-**Note the following API is implemented, but the stream interface is missing.**
-
 The API exist as three diffrent classes `Document`, `Search` and `Node`.
 
 ### Document
