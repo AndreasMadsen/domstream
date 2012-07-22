@@ -23,13 +23,15 @@ Executed on cpu: `2.66 Ghz Intel Core i7` and node: `v0.8.4-pre`.
 | Case                        | ms / run - less is better |
 |----------------------------:|:--------------------------|
 | **a small document** (693 B)                            |
-| plates                      | 0.0532                    |
-| domstream - no cache        | 0.0465                    |
-| domstream - cache           | 0.0259                    |
+| plates                      | 0.0534                    |
+| domstream - no cache        | 0.0461                    |
+| domstream - cache           | 0.025                     |
+| mustache                    | 0.0177                    |
 | **a big document** (5520 B)                             |
-| plates                      | 0.2928                    |
-| domstream - no cache        | 0.2168                    |
-| domstream - cache           | 0.1162                    |
+| plates                      | 0.305                     |
+| domstream - no cache        | 0.2224                    |
+| domstream - cache           | 0.1176                    |
+| mustache                    | 0.0814                    |
 
 ##Installation
 
