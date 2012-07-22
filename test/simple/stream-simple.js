@@ -42,7 +42,7 @@ describe('testing document stream', function () {
       });
 
       it('the first data chunk should emit', function () {
-        assert.equal(data, doc.content.slice(0, menu.elem.pos.beforebegin));
+        assert.equal(data, doc.content.slice(0, menu.elem.pos[0]));
         assert.notEqual(data[data.length - 1], '<');
       });
     });
@@ -91,7 +91,7 @@ describe('testing document stream', function () {
       });
 
       it('a data chunks should emit', function () {
-        var content = doc.content.slice(menu.elem.pos.beforebegin, menu.elem.pos.beforeend);
+        var content = doc.content.slice(menu.elem.pos[0], menu.elem.pos[2]);
         assert.notEqual(data[data.length - 1], '<');
         assert.equal(data, content);
       });
@@ -128,8 +128,8 @@ describe('testing document stream', function () {
 
       it('a data chunks should emit', function () {
         var content = doc.content.slice(
-          menu.elem.pos.beforeend,
-          input.elem.pos.beforebegin
+          menu.elem.pos[2],
+          input.elem.pos[0]
         );
         assert.notEqual(data[data.length - 1], '<');
         assert.equal(data, content);
@@ -159,8 +159,8 @@ describe('testing document stream', function () {
 
       it('a data chunk should emit', function () {
         var content = doc.content.slice(
-            input.elem.pos.beforebegin,
-            doc.tree.pos.beforeend + 1
+            input.elem.pos[0],
+            doc.tree.pos[2] + 1
           );
 
         assert.notEqual(data[data.length - 1], '<');

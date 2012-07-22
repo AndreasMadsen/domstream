@@ -38,7 +38,7 @@ describe('testing document stream - unordered', function () {
       });
 
       it('the first data chunk should emit', function () {
-        assert.equal(data, doc.content.slice(0, menu.elem.pos.beforebegin));
+        assert.equal(data, doc.content.slice(0, menu.elem.pos[0]));
         assert.notEqual(data[data.length - 1], '<');
       });
     });
@@ -74,8 +74,8 @@ describe('testing document stream - unordered', function () {
 
       it('the last data chunk should emit', function () {
         var content = doc.content.slice(
-          menu.elem.pos.beforebegin,
-          doc.tree.pos.beforeend + 1
+          menu.elem.pos[0],
+          doc.tree.pos[2] + 1
         );
 
         assert.notEqual(data[data.length - 1], '<');
