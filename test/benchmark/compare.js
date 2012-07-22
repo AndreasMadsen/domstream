@@ -9,6 +9,7 @@ var common = require('../common.js');
 
 // load module candiates
 var Plates = require('plates');
+var Mustache = require('mustache');
 var domstream = common.domstream;
 
 function benchmark(runs, fn) {
@@ -32,7 +33,19 @@ function run(size) {
       content = fs.readFileSync(common.benchmark[size].html, 'utf8'),
       cache = domstream(content);
 
-  // run plates tests
+  // run mustache benchmark
+  var mustacheContent = domstream(content)
+                            .find().only().attr('id', 'main')
+                            .toValue().setContent('{{main}}')
+                            .document.content;
+
+  result['mustache'] = benchmark(runs, function () {
+    Mustache.to_html(mustacheContent, { main: 'new content' });
+  });
+
+  console.log('completed: ' + size + ' -> mustache');
+
+  // run plates benchmark
   result['plates'] = benchmark(runs, function () {
     Plates.bind(content, { main: 'new content' });
   });
@@ -76,7 +89,7 @@ Object.keys(table).forEach(function (size) {
 
   console.log('| ' + headder + new Array((caseLength + speedLength) - headder.length).join(' ') + ' |');
 
-  Object.keys(table[size]).forEach(function (text) {
+  Object.keys(table[size]).sort(function (a, b) { return table[size][b] - table[size][a]; }).forEach(function (text) {
     console.log(
       '| ' + text + new Array(caseLength - text.length).join(' ') +
       '| ' + table[size][text] + new Array(speedLength - (table[size][text]).toString().length).join(' ') +

@@ -16,7 +16,7 @@
 ##Performance
 
 See [test/benchmark/compare.js](https://github.com/AndreasMadsen/domstream/blob/master/test/benchmark/compare.js)
-for benchmark code.
+for benchmark code, or run it yourself with `npm run-script compare`.
 
 Executed on cpu: `2.66 Ghz Intel Core i7` and node: `v0.8.4-pre`.
 
