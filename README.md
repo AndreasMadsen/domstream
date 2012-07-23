@@ -20,18 +20,19 @@ for benchmark code, or run it yourself with `npm run-script compare`.
 
 Executed on cpu: `2.66 Ghz Intel Core i7` and node: `v0.8.4-pre`.
 
+
 | Case                        | ms / run - less is better |
 |----------------------------:|:--------------------------|
 | **a small document** (693 B)                            |
-| plates                      | 0.0534                    |
-| domstream - no cache        | 0.0461                    |
-| domstream - cache           | 0.025                     |
-| mustache                    | 0.0177                    |
+| plates                      | 0.0568                    |
+| domstream - no cache        | 0.0468                    |
+| domstream - cache           | 0.0244                    |
+| mustache                    | 0.0189                    |
 | **a big document** (5520 B)                             |
-| plates                      | 0.305                     |
-| domstream - no cache        | 0.2224                    |
-| domstream - cache           | 0.1176                    |
-| mustache                    | 0.0814                    |
+| plates                      | 0.3183                    |
+| domstream - no cache        | 0.2203                    |
+| domstream - cache           | 0.1091                    |
+| mustache                    | 0.0876                    |
 
 ##Installation
 
