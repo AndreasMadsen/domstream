@@ -18,21 +18,20 @@
 See [test/benchmark/compare.js](https://github.com/AndreasMadsen/domstream/blob/master/test/benchmark/compare.js)
 for benchmark code, or run it yourself with `npm run-script compare`.
 
-Executed on cpu: `2.66 Ghz Intel Core i7` and node: `v0.8.4-pre`.
-
+Executed on cpu: `2.66 Ghz Intel Core i7` and node: `v0.8.15`.
 
 | Case                        | ms / run - less is better |
 |----------------------------:|:--------------------------|
 | **a small document** (693 B)                            |
-| plates                      | 0.0568                    |
-| domstream - no cache        | 0.0468                    |
-| domstream - cache           | 0.0244                    |
-| mustache                    | 0.0189                    |
+| plates                      | 0.0559                    |
+| domstream - no cache        | 0.0405                    |
+| domstream - cache           | 0.0218                    |
+| mustache                    | 0.0169                    |
 | **a big document** (5520 B)                             |
-| plates                      | 0.3183                    |
-| domstream - no cache        | 0.2203                    |
-| domstream - cache           | 0.1091                    |
-| mustache                    | 0.0876                    |
+| plates                      | 0.3051                    |
+| domstream - no cache        | 0.1823                    |
+| domstream - cache           | 0.0919                    |
+| mustache                    | 0.0781                    |
 
 ##Installation
 
