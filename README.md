@@ -240,8 +240,6 @@ var menuNode = document.find().only().elem('menu').toValue(),
 var menuItems = menuNode.find().elem('li').toArray();
 ```
 
-**The following API is not yet documented:**
-
 #### node.tagName()
 
 will return the tagname of the element.
