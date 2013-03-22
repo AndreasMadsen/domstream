@@ -8,7 +8,7 @@ var Search = require('./lib/search.js');
 var Node = require('./lib/node.js');
 var parseDocument = require('./lib/parse.js');
 
-exports = module.exports = function (content) {
+exports = module.exports = function domstream(content) {
   return new Document(content);
 };
 

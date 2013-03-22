@@ -3,7 +3,7 @@
  * MIT License
  */
 
-var flower = require('flower');
+var endpoint = require('endpoint');
 var chai = require('chai');
 var common = require('../common.js');
 var domstream = common.domstream;
@@ -32,16 +32,9 @@ describe('testing document stream', function () {
       doc.container([input, menu, li]);
     }));
 
-    describe('when resumeing output', function () {
-      var data; before(function (done) {
-        doc.once('data', function (chunk) {
-          data = chunk;
-          done();
-        });
-        doc.resume();
-      });
-
-      it('the first data chunk should emit', function () {
+    describe('when reading data', function () {
+      it('the first data chunk should be returned', function () {
+        var data = doc.read().toString();
         assert.equal(data, doc.content.slice(0, menu.elem.pos.beforebegin));
         assert.notEqual(data[data.length - 1], '<');
       });
@@ -53,20 +46,9 @@ describe('testing document stream', function () {
 
     // test appending content on subcontainer
     describe('when appending content to subcontainer', function () {
-      function ondata() {
-        throw new Error('data event emitted');
-      }
-
-      before(function () {
-        doc.once('data', ondata);
+      it('no data chunk should emit', function () {
         li.append('new content');
-      });
-
-      it('no data chunk should emit', function (done) {
-        setTimeout(function() {
-          doc.removeListener('data', ondata);
-          done();
-        }, 200);
+        assert.equal(doc.read(), null);
       });
 
       describe('after appending content to subcontaner', function () {
@@ -82,51 +64,32 @@ describe('testing document stream', function () {
 
     // test appending content on container
     describe('when appending content to container', function () {
-      var data; before(function (done) {
-        doc.once('data', function (chunk) {
-          data = chunk;
-          done();
-        });
-        menu.append('<li>new item</li>');
-      });
-
       it('a data chunks should emit', function () {
+        menu.append('<li>new item</li>');
+        var data = doc.read();
         var content = doc.content.slice(menu.elem.pos.beforebegin, menu.elem.pos.beforeend);
-        assert.notEqual(data[data.length - 1], '<');
         assert.equal(data, content);
+        assert.notEqual(data[data.length - 1], '<');
       });
     });
 
     testOfline(menu, 'on a chunked container', false);
 
     describe('when appending content o a chunked container', function () {
-      var data; before(function (done) {
-        doc.once('data', function (chunk) {
-          data = chunk;
-          done();
-        });
-        menu.append('<li>new item</li>');
-      });
-
-
       it('a data chunks should emit', function () {
-        assert.notEqual(data[data.length - 1], '<');
+        menu.append('<li>new item</li>');
+        var data = doc.read();
         assert.equal(data, '<li>new item</li>');
+        assert.notEqual(data[data.length - 1], '<');
       });
     });
 
-
     // test done on an container
     describe('when calling done a container', function () {
-      var data; before(function (done) {
-        doc.once('data', function (chunk) {
-          data = chunk;
-          done();
-        });
-        menu.done();
-      });
-
       it('a data chunks should emit', function () {
+        menu.done();
+        var data = doc.read();
+
         var content = doc.content.slice(
           menu.elem.pos.beforeend,
           input.elem.pos.beforebegin
@@ -149,15 +112,11 @@ describe('testing document stream', function () {
     });
 
     describe('when calling done on on a singleton container', function () {
-      var data; before(function (done) {
-        doc.once('data', function (chunk) {
-          data = chunk;
-          done();
-        });
-        input.done();
-      });
 
       it('a data chunk should emit', function () {
+        input.done();
+        var data = doc.read();
+
         var content = doc.content.slice(
             input.elem.pos.beforebegin,
             doc.tree.pos.beforeend + 1
@@ -167,19 +126,6 @@ describe('testing document stream', function () {
         assert.equal(data, content);
       });
     });
-
-    var emittedContent;
-    flower.stream2buffer(doc, function (error, buf) {
-      assert.ifError(error);
-      emittedContent = buf.toString();
-    });
-
-    describe('when all containers are filled', function () {
-      it('the emmited content should match the document content', function () {
-        assert.equal(doc.content, emittedContent);
-      });
-    });
-
   });
 
   function expectError(fn) {

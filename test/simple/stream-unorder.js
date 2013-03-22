@@ -3,7 +3,6 @@
  * MIT License
  */
 
-var flower = require('flower');
 var chai = require('chai');
 var common = require('../common.js');
 var domstream = common.domstream;
@@ -29,50 +28,28 @@ describe('testing document stream - unordered', function () {
     });
 
     describe('when resumeing output', function () {
-      var data; before(function (done) {
-        doc.once('data', function (chunk) {
-          data = chunk;
-          done();
-        });
-        doc.resume();
-      });
-
       it('the first data chunk should emit', function () {
+        var data = doc.read();
+
         assert.equal(data, doc.content.slice(0, menu.elem.pos.beforebegin));
         assert.notEqual(data[data.length - 1], '<');
       });
     });
 
     describe('when calling done on the last container', function () {
-      function ondata() {
-        throw new Error('data event emitted');
-      }
-
-      before(function () {
-        doc.once('data', ondata);
+      it('no data should emit', function () {
         input.setAttr('value', 'foo').done();
-      });
 
-
-      it('no data should emit', function (done) {
-        setTimeout(function() {
-          doc.removeListener('data', ondata);
-          done();
-        }, 200);
+        var data = doc.read();
+        assert.equal(data, null);
       });
     });
 
     describe('when calling done on the remaining container', function () {
-
-      var data; before(function (done) {
-        doc.once('data', function (chunk) {
-          data = chunk;
-          done();
-        });
-        menu.done();
-      });
-
       it('the last data chunk should emit', function () {
+        menu.done();
+        var data = doc.read();
+
         var content = doc.content.slice(
           menu.elem.pos.beforebegin,
           doc.tree.pos.beforeend + 1
@@ -82,18 +59,5 @@ describe('testing document stream - unordered', function () {
         assert.equal(data, content);
       });
     });
-
-    var emittedContent;
-    flower.stream2buffer(doc, function (error, buf) {
-      assert.ifError(error);
-      emittedContent = buf.toString();
-    });
-
-    describe('when all containers are filled', function () {
-      it('the emmited content should match the document content', function () {
-        assert.equal(doc.content, emittedContent);
-      });
-    });
-
   });
 });
