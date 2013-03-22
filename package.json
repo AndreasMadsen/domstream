@@ -21,10 +21,13 @@
     "modify",
     "html"
   ],
+  "dependencies": {
+    "readable-stream": "1.0.x"
+  },
   "devDependencies": {
     "mustache": "0.4.x",
     "plates": "0.4.x",
-    "mocha" :  "1.8.x",
+    "mocha" : "1.8.x",
     "chai": "1.5.x"
   },
   "license": "MIT",
