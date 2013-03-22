@@ -12,7 +12,7 @@ describe('testing pretag parser', function () {
 
   describe('when parsing no pretag', function () {
     var content = '<doc></doc>';
-    var doc = domstream('<doc></doc>');
+    var doc = domstream(content);
 
     it('the content should be parsed as expected', function () {
       assert.equal(content.slice(doc.tree.pos.afterbegin, doc.tree.pos.beforeend + 1), '<doc></doc>');
