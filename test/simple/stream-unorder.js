@@ -28,7 +28,7 @@ describe('testing document stream - unordered', function () {
     });
 
     describe('when resumeing output', function () {
-      it('the first data chunk should emit', function () {
+      it('the first data chunk should be returned', function () {
         var data = doc.read();
 
         assert.equal(data, doc.content.slice(0, menu.elem.pos.beforebegin));
@@ -37,7 +37,7 @@ describe('testing document stream - unordered', function () {
     });
 
     describe('when calling done on the last container', function () {
-      it('no data should emit', function () {
+      it('no data can be read', function () {
         input.setAttr('value', 'foo').done();
 
         var data = doc.read();
@@ -46,7 +46,7 @@ describe('testing document stream - unordered', function () {
     });
 
     describe('when calling done on the remaining container', function () {
-      it('the last data chunk should emit', function () {
+      it('the last data chunk should be returned', function () {
         menu.done();
         var data = doc.read();
 

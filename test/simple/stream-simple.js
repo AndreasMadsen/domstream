@@ -46,7 +46,7 @@ describe('testing document stream', function () {
 
     // test appending content on subcontainer
     describe('when appending content to subcontainer', function () {
-      it('no data chunk should emit', function () {
+      it('no data can be read', function () {
         li.append('new content');
         assert.equal(doc.read(), null);
       });
@@ -64,7 +64,7 @@ describe('testing document stream', function () {
 
     // test appending content on container
     describe('when appending content to container', function () {
-      it('a data chunks should emit', function () {
+      it('there is data to read', function () {
         menu.append('<li>new item</li>');
         var data = doc.read();
         var content = doc.content.slice(menu.elem.pos.beforebegin, menu.elem.pos.beforeend);
@@ -76,7 +76,7 @@ describe('testing document stream', function () {
     testOfline(menu, 'on a chunked container', false);
 
     describe('when appending content o a chunked container', function () {
-      it('a data chunks should emit', function () {
+      it('there is data to read', function () {
         menu.append('<li>new item</li>');
         var data = doc.read();
         assert.equal(data, '<li>new item</li>');
@@ -86,7 +86,7 @@ describe('testing document stream', function () {
 
     // test done on an container
     describe('when calling done a container', function () {
-      it('a data chunks should emit', function () {
+      it('there is data to read', function () {
         menu.done();
         var data = doc.read();
 
@@ -113,7 +113,7 @@ describe('testing document stream', function () {
 
     describe('when calling done on on a singleton container', function () {
 
-      it('a data chunk should emit', function () {
+      it('there is data to read', function () {
         input.done();
         var data = doc.read();
 
