@@ -69,7 +69,6 @@ var document = original.copy();
 
 // this document should be send to the client as a response
 document.pipe(process.stdout);
-document.resume();
 
 // first describe the nodes there will modified
 var title = document.find().only().elem('title').toValue();
