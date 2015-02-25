@@ -1,7 +1,7 @@
 {
   "name": "domstream",
   "description": "HTML manipulation with progressiv output stream",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "author": "Andreas Madsen <amwebdk@gmail.com>",
   "scripts": {
     "test": "mocha --ui bdd --reporter spec test/simple/*",
@@ -22,14 +22,10 @@
     "html"
   ],
   "devDependencies": {
-    "mustache": "0.4.x",
+    "mustache": "1.1.x",
     "plates": "0.4.x",
-    "mocha" : "1.8.x",
-    "chai": "1.5.x"
+    "mocha" : "2.1.x",
+    "chai": "2.1.x"
   },
-  "license": "MIT",
-  "engines": {
-    "node": "0.10 || 0.11",
-    "npm": "1"
-  }
+  "license": "MIT"
 }
